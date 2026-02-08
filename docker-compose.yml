@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: -
+      dockerfile: apps/love-travel-back/Dockerfile.backend
+    ports:
+    - "3000:3000"
+    depends_on:
+    - postgres_db
+    - mongo_db
+    networks:
+      - love-travel-network
+
+  frontend:
+    build: ./apps/love-travel-front/Dockerfile.frontend
+    ports:
+      - "80:80"
+    networks:
+      - love-travel-network
+  # Banco Relacional
+  postgres_db:
+    image: postgres:15
+    container_name: travel_sql
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    networks:
+      - love-travel-network
+
+  # Banco Não relacional
+  mongo_db:
+    image: mongo:latest
+    container_name: travel_nosql
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME:
+      MONGO_INITDB_ROOT_PASSWORD:
+    ports:
+      - "27017:27017"
+    networks:
+      - love-travel-network
+
+  # Cache
+  redis_cache:
+    image: redis:alpine
+    container_name: travel_cache
+    ports:
+      - "6379:6379"
+    networks:
+      - love-travel-network
+  # Monitoramento de Logs
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: travel_monitor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "8080:8080"
+    networks:
+      - love-travel-network
+
+  # Rede virtual isolada para os serviços se comunicarem internamente com segurança e isolamento entre os containers.
+  networks:
+    love-travel-network:
+      driver: bridge
+

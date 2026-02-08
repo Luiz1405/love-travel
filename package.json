@@ -1,0 +1,24 @@
+{
+  "name": "love-travel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:backend": "npm --workspace apps/love-travel-back start",
+    "start:frontend": "npm --workspace apps/love-travel-front run dev",
+    "dev": "npx concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "firebase": "^12.9.0"
+  }
+}
