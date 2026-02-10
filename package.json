@@ -20,9 +20,11 @@
   },
   "dependencies": {
     "@nestjs/config": "^4.0.3",
+    "@nestjs/mongoose": "^11.0.4",
     "@nestjs/typeorm": "^11.0.0",
     "firebase": "^12.9.0",
     "joi": "^18.0.2",
+    "mongoose": "^9.2.0",
     "pg": "^8.18.0",
     "typeorm": "^0.3.28"
   }
