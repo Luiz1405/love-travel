@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { envValidationSchema } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { NoSqlModule } from './database/nosql.module';
+import { UsersModule } from './modules/users/user.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { NoSqlModule } from './database/nosql.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
-    NoSqlModule
+    NoSqlModule,
+    UsersModule
   ],
 
 })
