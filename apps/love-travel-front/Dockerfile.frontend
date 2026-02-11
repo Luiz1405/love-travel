@@ -15,13 +15,13 @@ RUN npm install && npm install -g typescript@latest
 COPY apps/love-travel-front/ ./
 
 # Copiando o arquivo de configuração do tsconfig da raiz do monorepo
-COPY tsconfig.json ./tsconfig.json
+#COPY tsconfig.json ./tsconfig.json
 
 # Adicionando configurações de biblioetacas adicionais
 RUN npm install @types/node --save-dev
 
 #Rodando o build para produção
-RUN npm run build
+#RUN npm run build
 
 # Utilizando a imagem do nginx para servir o build do frontend
 FROM nginx:alpine

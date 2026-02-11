@@ -3,10 +3,12 @@ version: '3.8'
 services:
   backend:
     build:
-      context: -
+      context: .
       dockerfile: apps/love-travel-back/Dockerfile.backend
     ports:
     - "3000:3000"
+    env_file:
+      - .env
     depends_on:
     - postgres_db
     - mongo_db
@@ -14,9 +16,11 @@ services:
       - love-travel-network
 
   frontend:
-    build: ./apps/love-travel-front/Dockerfile.frontend
+    build: 
+      context: .
+      dockerfile: apps/love-travel-front/Dockerfile.frontend
     ports:
-      - "80:80"
+      - "80:81"
     networks:
       - love-travel-network
   # Banco Relacional
@@ -42,7 +46,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME:
       MONGO_INITDB_ROOT_PASSWORD:
     ports:
-      - "27018:27018"
+      - "27018:27017"
     networks:
       - love-travel-network
 
@@ -65,8 +69,8 @@ services:
     networks:
       - love-travel-network
 
-  # Rede virtual isolada para os serviços se comunicarem internamente com segurança e isolamento entre os containers.
-  networks:
-    love-travel-network:
-      driver: bridge
+# Rede virtual isolada para os serviços se comunicarem internamente com segurança e isolamento entre os containers.
+networks:
+  love-travel-network:
+    driver: bridge
 
