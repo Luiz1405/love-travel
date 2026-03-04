@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/updat-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserEntity } from '../entities/user.entity';
 
 
@@ -25,7 +25,7 @@ export class UsersController {
         return this.usersService.findById(id);
     }
 
-    @Put(':id')
+    @Patch(':id')
     async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
         const user = await this.usersService.update(id, updateUserDto);
         return this.excludePassword(user);

@@ -3,28 +3,31 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
-import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from '../dto/updat-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { SecurityService } from 'src/shared/security/security.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
+        private readonly securityService: SecurityService,
     ) { }
 
     async create(CreateUserDto: CreateUserDto): Promise<UserEntity> {
         const { email, name, password } = CreateUserDto;
 
-        const userExists = await this.userRepository.findOne({ where: { email } });
-        if (userExists) {
-            throw new ConflictException('User already exists');
+        const emailExists = await this.userRepository.findOne({ where: { email } });
+        if (emailExists) {
+            throw new ConflictException('Email already exists');
         }
+
+        const hashedPassword = await this.securityService.hashPassword(password);
 
         const user = this.userRepository.create({
             name,
             email,
-            password: await this.hashPassword(password),
+            password: hashedPassword,
         });
 
         return await this.userRepository.save(user);
@@ -44,22 +47,25 @@ export class UsersService {
     }
 
     async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-        const user = await this.findById(id);
+        const user = await this.userRepository.findOne({ where: { id } });
         if (!user) {
             throw new NotFoundException('User not found');
         }
 
-        const { name, email, password } = updateUserDto;
+        const { email, password } = updateUserDto;
 
-        const updateData: Partial<UserEntity> = {
-            ...(name !== undefined && { name }),
-            ...(email !== undefined && { email }),
-            ...(password !== undefined && {
-                password: await this.hashPassword(password)
-            }),
-        };
+        if (email && email !== user.email) {
+            if (await this.emailExists(email)) {
+                throw new ConflictException('Email already exists');
+            }
+        }
 
-        this.userRepository.merge(user, updateData);
+        if (password) {
+            updateUserDto.password = await this.securityService.hashPassword(password);
+        }
+
+        this.userRepository.merge(user, updateUserDto);
+
         return await this.userRepository.save(user);
     }
 
@@ -71,15 +77,15 @@ export class UsersService {
         return true;
     }
 
-    private async hashPassword(password: string): Promise<string> {
-        const salt = await bcrypt.genSalt(10);
-        return await bcrypt.hash(password, salt);
-    }
-
     async findByEmail(email: string): Promise<UserEntity | null> {
         return await this.userRepository.findOne({
             where: { email },
             select: ['id', 'name', 'email', 'password']
         });
+    }
+
+    private async emailExists(email: string): Promise<boolean> {
+        const emailExists = await this.userRepository.findOne({ where: { email } });
+        return emailExists ? true : false;
     }
 }
