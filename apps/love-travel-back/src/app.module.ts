@@ -4,6 +4,7 @@ import { envValidationSchema } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { NoSqlModule } from './database/nosql.module';
 import { UsersModule } from './modules/users/user.module';
+import { SecutiryModule } from './shared/security/secutiry.module';
 
 @Module({
   imports: [
@@ -14,8 +15,11 @@ import { UsersModule } from './modules/users/user.module';
     }),
     DatabaseModule,
     NoSqlModule,
-    UsersModule
+    SecutiryModule,
+    UsersModule,
+
+
   ],
 
 })
-export class AppModule {}
+export class AppModule { }
