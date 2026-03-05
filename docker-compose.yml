@@ -1,22 +1,25 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: .
       dockerfile: apps/love-travel-back/Dockerfile.backend
     ports:
-    - "3000:3000"
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
     env_file:
-      - .env
+      - apps/love-travel-back/.env
     depends_on:
-    - postgres_db
-    - mongo_db
+      postgres_db:
+        condition: service_healthy
+      mongo_db:
+        condition: service_started
     networks:
       - love-travel-network
 
   frontend:
-    build: 
+    build:
       context: .
       dockerfile: apps/love-travel-front/Dockerfile.frontend
     ports:
@@ -28,12 +31,21 @@ services:
     image: postgres:15
     container_name: travel_sql
     restart: always
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-love_travel_db}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - love-travel-network
 
@@ -43,8 +55,8 @@ services:
     container_name: travel_nosql
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME:
-      MONGO_INITDB_ROOT_PASSWORD:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: senhamongolovetravel
     ports:
       - "27018:27017"
     networks:
@@ -65,7 +77,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - love-travel-network
 
@@ -74,3 +86,6 @@ networks:
   love-travel-network:
     driver: bridge
 
+# Volumes para persistência de dados
+volumes:
+  postgres_data:

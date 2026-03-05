@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { NoSqlModule } from './database/nosql.module';
 import { UsersModule } from './modules/users/user.module';
 import { SecutiryModule } from './shared/security/secutiry.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SecutiryModule } from './shared/security/secutiry.module';
     DatabaseModule,
     NoSqlModule,
     SecutiryModule,
+    AuthModule,
     UsersModule,
 
 

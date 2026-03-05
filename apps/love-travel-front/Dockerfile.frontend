@@ -18,10 +18,10 @@ COPY apps/love-travel-front/ ./
 #COPY tsconfig.json ./tsconfig.json
 
 # Adicionando configurações de biblioetacas adicionais
-RUN npm install @types/node --save-dev
+RUN npm install @types/node --save-dev --legacy-peer-deps
 
 #Rodando o build para produção
-#RUN npm run build
+RUN npm run build
 
 # Utilizando a imagem do nginx para servir o build do frontend
 FROM nginx:alpine
