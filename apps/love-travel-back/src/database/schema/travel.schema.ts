@@ -18,7 +18,7 @@ export class Travel {
     @Prop({ required: true })
     startDate: Date;
 
-    @Prop({ nullable: true })
+    @Prop({ required: false })
     endDate: Date;
 
     @Prop({ required: true })
@@ -30,8 +30,15 @@ export class Travel {
     @Prop({ type: [String] })
     photos: string[];
 
-    @Prop({ nullable: true })
+    @Prop({ required: false })
     description: string;
 }
 
 export const TravelSchema = SchemaFactory.createForClass(Travel);
+
+TravelSchema.pre('save', function (next: (error?: Error) => void) {
+    if (this.endDate && this.endDate < this.startDate) {
+        return next(new Error('End date cannot be before start date'));
+    }
+    next();
+});
