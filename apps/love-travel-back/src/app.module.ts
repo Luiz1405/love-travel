@@ -6,6 +6,7 @@ import { NoSqlModule } from './database/nosql.module';
 import { UsersModule } from './modules/users/user.module';
 import { SecutiryModule } from './shared/security/secutiry.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { TravelModule } from './modules/travel/travel.module';
 
 @Module({
   imports: [
@@ -19,8 +20,7 @@ import { AuthModule } from './modules/auth/auth.module';
     SecutiryModule,
     AuthModule,
     UsersModule,
-
-
+    TravelModule,
   ],
 
 })
