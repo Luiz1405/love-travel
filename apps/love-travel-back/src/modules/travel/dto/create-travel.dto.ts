@@ -36,8 +36,8 @@ export class CreateTravelDto {
 
     @IsArray()
     @IsString({ each: true })
-    @IsNotEmpty()
-    photos: string[];
+    @IsOptional()
+    photos?: string[];
 
     @IsString()
     @IsOptional()

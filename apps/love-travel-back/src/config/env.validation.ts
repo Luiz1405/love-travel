@@ -2,9 +2,9 @@ import * as Joi from 'joi';
 
 export const envValidationSchema = Joi.object({
     NODE_ENV: Joi.string()
-        .valid('development' , 'production', 'test')
+        .valid('development', 'production', 'test')
         .default('development'),
-        PORT: Joi.number().default(3000),
+    PORT: Joi.number().default(3000),
 
     //Validação de dados Postgres
     DB_HOST: Joi.string().required(),
@@ -18,4 +18,10 @@ export const envValidationSchema = Joi.object({
 
     //Validação JWT
     JWT_SECRET: Joi.string().required(),
+
+    //Validação de dados Supabase
+    SUPABASE_URL: Joi.string().required().messages({
+        'string.uri': 'SUPABASE_URL must be a valid URL',
+    }),
+    SUPABASE_KEY: Joi.string().required(),
 })

@@ -3,7 +3,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { Travel, TravelSchema } from "src/database/schema/travel.schema";
 import { TravelController } from "./controller/travel.controller";
 import { TravelService } from "./service/travel.service";
-import { handleFileSupaBaseService } from "src/utils/handleFileSupaBaseService";
+import { HandleFileSupaBaseService } from "src/utils/handleFileSupaBaseService";
 
 
 @Module({
@@ -13,7 +13,7 @@ import { handleFileSupaBaseService } from "src/utils/handleFileSupaBaseService";
         TravelService,
         {
             provide: 'HandleFileInterface',
-            useClass: handleFileSupaBaseService,
+            useClass: HandleFileSupaBaseService,
         }
     ],
     exports: [MongooseModule, TravelService]
