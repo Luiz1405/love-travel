@@ -1,11 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
-import { createClient } from '@supabase/supabase-js';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
+@Injectable()
+export class SupabaseService {
+    private supabaseClient: SupabaseClient;
 
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error('SUPABASE_URL and SUPABASE_KEY must be defined in environment variables');
+    constructor(private configService: ConfigService) {
+        const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+        const supabaseServiceRoleKey = this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+
+        if (!supabaseUrl || !supabaseServiceRoleKey) {
+            throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be defined in environment variables');
+        }
+
+        this.supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
+            auth: {
+                autoRefreshToken: false,
+                persistSession: false
+            }
+        });
+    }
+
+    getClient(): SupabaseClient {
+        return this.supabaseClient;
+    }
 }
-
-export const supabase = createClient(supabaseUrl, supabaseKey);

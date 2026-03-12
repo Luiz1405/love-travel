@@ -24,4 +24,5 @@ export const envValidationSchema = Joi.object({
         'string.uri': 'SUPABASE_URL must be a valid URL',
     }),
     SUPABASE_KEY: Joi.string().required(),
+    SUPABASE_SERVICE_ROLE_KEY: Joi.string().required(),
 })

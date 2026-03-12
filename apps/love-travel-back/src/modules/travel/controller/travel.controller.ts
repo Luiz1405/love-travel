@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { TravelService } from "../service/travel.service";
 import { CreateTravelDto } from "../dto/create-travel.dto";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
@@ -16,7 +16,7 @@ export class TravelController {
     async create(
         @Body() createTravelDto: CreateTravelDto,
         @UploadedFiles() photos: Express.Multer.File[],
-        @GetUser('id') userId: string
+        @GetUser('userId') userId: string
     ) {
         return this.travelService.createTravel(createTravelDto, photos, userId);
     }
