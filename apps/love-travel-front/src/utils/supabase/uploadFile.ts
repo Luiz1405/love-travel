@@ -6,7 +6,7 @@ export const uploadTravelImage = async (file: File, userId: string): Promise<str
         const fileName = `${Date.now()}_${file.name}`;
         const filePath = `${userId}/${fileName}`;
 
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
             .from('travels')
             .upload(filePath, file);
 

@@ -27,6 +27,7 @@ export class CreateTravelDto {
 
     @IsNumber()
     @IsNotEmpty()
+    @Type(() => Number)
     total_spent: number;
 
     @IsString()

@@ -16,7 +16,11 @@ export class TravelService {
         private readonly handleFileSupaBaseService: handleFileInterface,
     ) { }
 
-    async createTravel(createTravelDto: CreateTravelDto, photos: Express.Multer.File[]): Promise<TravelDocument> {
+    async createTravel(createTravelDto: CreateTravelDto,
+        photos: Express.Multer.File[],
+        userId: string
+    ): Promise<TravelDocument> {
+        createTravelDto.userId = userId;
         createTravelDto.photos = await this.uploadPhotos(photos);
 
         const travel = new this.travelModel(createTravelDto);
