@@ -5,6 +5,7 @@ import { UpdateTravelDto } from "../dto/update-travel.dto";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "src/modules/auth/guards/jwt-auth.guard";
 import { GetUser } from "src/utils/decorators/get-user.decorator";
+import { CacheInterceptor, CacheKey, CacheTTL } from "@nestjs/cache-manager";
 
 @Controller('travels')
 export class TravelController {
@@ -22,8 +23,11 @@ export class TravelController {
     }
 
     @Get()
-    async findAll() {
-        return this.travelService.findAll();
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('all_travels')
+    @CacheTTL(60000)
+    async findAll(@GetUser('userId') userId: string) {
+        return this.travelService.findAll(userId);
     }
 
     @Get(':id')

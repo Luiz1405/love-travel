@@ -5,6 +5,7 @@ import { CreateTravelDto } from "../dto/create-travel.dto";
 import { Inject, NotFoundException } from "@nestjs/common";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
 import type { handleFileInterface } from "./../../../utils/contracts/handleFileInterface";
+import { Cache, CACHE_MANAGER } from "@nestjs/cache-manager";
 
 
 export class TravelService {
@@ -14,6 +15,8 @@ export class TravelService {
 
         @Inject('HandleFileInterface')
         private readonly handleFileSupaBaseService: handleFileInterface,
+
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) { }
 
     async createTravel(createTravelDto: CreateTravelDto,
@@ -25,11 +28,22 @@ export class TravelService {
 
         const travel = new this.travelModel(createTravelDto);
 
+        await this.cacheManager.del('travels_user_${userId}');
+
         return await travel.save();
     }
 
-    async findAll(): Promise<TravelDocument[]> {
-        return await this.travelModel.find().exec();
+    async findAll(userId: string): Promise<TravelDocument[]> {
+        const cacheKey = `travels_user_${userId}`;
+
+        const cachedData = await this.cacheManager.get<TravelDocument[]>(cacheKey);
+        if (cachedData) { return cachedData; }
+
+        const travels = await this.travelModel.find({ userId }).exec();
+
+        await this.cacheManager.set(cacheKey, travels, 3600000);
+
+        return travels;
     }
 
     async findById(id: string): Promise<TravelDocument> {
