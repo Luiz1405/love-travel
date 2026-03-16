@@ -14,7 +14,11 @@ export const envValidationSchema = Joi.object({
     DB_DATABASE: Joi.string().required(),
 
     //Validação de dados Mongo
-    MONGO_URI: Joi.string().required(),
+    MONGO_HOST: Joi.string().required(),
+    MONGO_PORT: Joi.number().default(27017),
+    MONGO_USERNAME: Joi.string().required(),
+    MONGO_PASSWORD: Joi.string().required(),
+    MONGO_DATABASE: Joi.string().default('admin'),
 
     //Validação JWT
     JWT_SECRET: Joi.string().required(),

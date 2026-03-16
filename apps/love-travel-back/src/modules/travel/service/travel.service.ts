@@ -5,6 +5,7 @@ import { CreateTravelDto } from "../dto/create-travel.dto";
 import { Inject, NotFoundException } from "@nestjs/common";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
 import type { handleFileInterface } from "./../../../utils/contracts/handleFileInterface";
+import { RedisService } from "src/modules/redis/service/redis.service";
 
 
 export class TravelService {
@@ -14,6 +15,8 @@ export class TravelService {
 
         @Inject('HandleFileInterface')
         private readonly handleFileSupaBaseService: handleFileInterface,
+
+        private readonly redisService: RedisService,
     ) { }
 
     async createTravel(createTravelDto: CreateTravelDto,
@@ -25,11 +28,24 @@ export class TravelService {
 
         const travel = new this.travelModel(createTravelDto);
 
+        await this.redisService.del(`travels_user_${userId}`);
+
         return await travel.save();
     }
 
-    async findAll(): Promise<TravelDocument[]> {
-        return await this.travelModel.find().exec();
+    async findAll(userId: string): Promise<TravelDocument[]> {
+        const cacheKey = `travels_user_${userId}`;
+
+        const cachedItems = await this.redisService.get(cacheKey);
+        if (cachedItems) {
+            return JSON.parse(cachedItems) as TravelDocument[];
+        }
+
+        const travels = await this.travelModel.find({ userId: userId }).exec();
+
+        await this.redisService.set(cacheKey, JSON.stringify(travels), 3600000);
+
+        return travels;
     }
 
     async findById(id: string): Promise<TravelDocument> {
@@ -42,22 +58,26 @@ export class TravelService {
         return travel;
     }
 
-    async update(id: string, updateTravelDto: UpdateTravelDto): Promise<TravelDocument> {
+    async update(id: string, updateTravelDto: UpdateTravelDto, userId: string): Promise<TravelDocument> {
         const travel = await this.travelModel.findByIdAndUpdate(id, updateTravelDto, { new: true }).exec();
 
         if (!travel) {
             throw new NotFoundException('Travel not found');
         }
 
+        await this.redisService.del(`travels_user_${userId}`);
+
         return travel;
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: string, userId: string): Promise<void> {
         const travel = await this.travelModel.findByIdAndDelete(id).exec();
 
         if (!travel) {
             throw new NotFoundException('Travel not found');
         }
+
+        await this.redisService.del(`travels_user_${userId}`);
     }
 
     private async uploadPhotos(photos: Express.Multer.File[]): Promise<string[]> {

@@ -5,10 +5,14 @@ import { TravelController } from "./controller/travel.controller";
 import { TravelService } from "./service/travel.service";
 import { HandleFileSupaBaseService } from "src/utils/handleFileSupaBaseService";
 import { SupabaseService } from "src/config/supabase.config";
+import { RedisModule } from "../redis/redis.module";
 
 
 @Module({
-    imports: [MongooseModule.forFeature([{ name: Travel.name, schema: TravelSchema }])],
+    imports: [
+        MongooseModule.forFeature([{ name: Travel.name, schema: TravelSchema }]),
+        RedisModule
+    ],
     controllers: [TravelController],
     providers: [
         SupabaseService,

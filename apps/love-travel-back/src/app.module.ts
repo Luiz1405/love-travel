@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/user.module';
 import { SecutiryModule } from './shared/security/secutiry.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TravelModule } from './modules/travel/travel.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TravelModule } from './modules/travel/travel.module';
     AuthModule,
     UsersModule,
     TravelModule,
+    RedisModule,
   ],
 
 })

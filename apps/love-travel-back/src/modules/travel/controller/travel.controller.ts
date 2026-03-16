@@ -22,8 +22,9 @@ export class TravelController {
     }
 
     @Get()
-    async findAll() {
-        return this.travelService.findAll();
+    @UseGuards(JwtAuthGuard)
+    async findAll(@GetUser('userId') userId: string) {
+        return this.travelService.findAll(userId);
     }
 
     @Get(':id')
@@ -32,12 +33,21 @@ export class TravelController {
     }
 
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateTravelDto: UpdateTravelDto) {
-        return this.travelService.update(id, updateTravelDto);
+    @UseGuards(JwtAuthGuard)
+    async update(
+        @Param('id') id: string,
+        @Body() updateTravelDto: UpdateTravelDto,
+        @GetUser('userId') userId: string
+    ) {
+        return this.travelService.update(id, updateTravelDto, userId);
     }
 
     @Delete(':id')
-    async delete(@Param('id') id: string) {
-        return this.travelService.delete(id);
+    @UseGuards(JwtAuthGuard)
+    async delete(
+        @Param('id') id: string,
+        @GetUser('userId') userId: string
+    ) {
+        return this.travelService.delete(id, userId);
     }
 }

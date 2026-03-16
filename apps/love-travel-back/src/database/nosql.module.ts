@@ -8,10 +8,21 @@ import { MongooseModule } from "@nestjs/mongoose";
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                uri: configService.get<string>('MONGO_URI'),
-            }),
+            useFactory: (configService: ConfigService) => {
+                const username = configService.get<string>('MONGO_USERNAME');
+                const password = configService.get<string>('MONGO_PASSWORD');
+                const host = configService.get<string>('MONGO_HOST');
+                const port = configService.get<number>('MONGO_PORT');
+                const database = configService.get<string>('MONGO_DATABASE') || 'admin';
+
+                const uri = `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`;
+
+                return {
+                    uri,
+                    dbName: database,
+                };
+            },
         }),
     ],
 })
-export class NoSqlModule {}
+export class NoSqlModule { }
