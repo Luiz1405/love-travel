@@ -1,5 +1,5 @@
-import { PartialType } from "@nestjs/mapped-types";
+import { OmitType, PartialType } from "@nestjs/mapped-types";
 import { CreateTravelDto } from "./create-travel.dto";
 
 
-export class UpdateTravelDto extends PartialType(CreateTravelDto) { }
+export class UpdateTravelDto extends PartialType(OmitType(CreateTravelDto, ['userId'] as const)) { }

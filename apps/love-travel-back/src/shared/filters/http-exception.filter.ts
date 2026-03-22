@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-    private readonly logger = new Logger('HttpExcpetion');
+    private readonly logger = new Logger('HttpExcepetion');
 
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
@@ -19,8 +19,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 ? exception.getResponse()
                 : { message: 'Internal server error', statusCode: 500 }
 
+        const stack = exception instanceof Error ? exception.stack : 'No stack trace available';
+
         this.logger.error(
-            `HTPP Status: ${status} Error: ${JSON.stringify(message)} Path: ${request.url} Method: ${request.method}`,
+            `HTTP Status: ${status} | Path: ${request.url} Method: ${request.method}`, stack,
         );
 
         response.status(status).json({

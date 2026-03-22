@@ -21,6 +21,7 @@
     "typeorm": "typeorm-ts-node-commonjs"
   },
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.11",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -35,7 +36,10 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "generic-pool": "^3.9.0",
+    "google-libphonenumber": "^3.2.44",
     "joi": "^17.13.3",
+    "libphonenumber-js": "^1.12.40",
     "mongoose": "^8.8.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -44,7 +48,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "validator": "^13.15.26"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -86,6 +91,12 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!.*\\.mjs$)"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

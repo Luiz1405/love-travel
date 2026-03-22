@@ -4,7 +4,7 @@ import { envValidationSchema } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { NoSqlModule } from './database/nosql.module';
 import { UsersModule } from './modules/users/user.module';
-import { SecutiryModule } from './shared/security/secutiry.module';
+import { SecurityModule } from './shared/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TravelModule } from './modules/travel/travel.module';
 import { RedisModule } from './modules/redis/redis.module';
@@ -18,7 +18,7 @@ import { RedisModule } from './modules/redis/redis.module';
     }),
     DatabaseModule,
     NoSqlModule,
-    SecutiryModule,
+    SecurityModule,
     AuthModule,
     UsersModule,
     TravelModule,

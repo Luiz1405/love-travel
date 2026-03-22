@@ -6,6 +6,7 @@ import { UserEntity } from '../entities/user.entity';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ApiStandarErrors } from 'src/utils/decorators/swagger.decorator';
+import { GetUser } from 'src/utils/decorators/get-user.decorator';
 
 
 @Controller('users')
@@ -21,13 +22,15 @@ export class UsersController {
     @Get()
     @ApiResponse({ status: 200, description: 'Users found with success.' })
     async findAll() {
-        return this.usersService.findAll();
+        const users = await this.usersService.findAll();
+        return users.map(user => this.excludePassword(user));
     }
 
     @Get(':id')
     @ApiResponse({ status: 200, description: 'User found with success.' })
     async findById(@Param('id') id: string) {
-        return this.usersService.findById(id);
+        const user = await this.usersService.findById(id);
+        return user ? this.excludePassword(user) : null;
     }
 
     @UseGuards(JwtAuthGuard)
@@ -35,8 +38,8 @@ export class UsersController {
     @ApiStandarErrors()
     @ApiResponse({ status: 200, description: 'User updated with success.' })
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        const user = await this.usersService.update(id, updateUserDto);
+    async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @GetUser('userId') userId: string) {
+        const user = await this.usersService.update(id, updateUserDto, userId);
         return this.excludePassword(user);
     }
 
@@ -45,8 +48,8 @@ export class UsersController {
     @ApiStandarErrors()
     @ApiResponse({ status: 204, description: 'User deleted with success.' })
     @Delete(':id')
-    async delete(@Param('id') id: string) {
-        return this.usersService.delete(id);
+    async delete(@Param('id') id: string, @GetUser('userId') userId: string) {
+        return this.usersService.delete(id, userId);
     }
 
     @Post()

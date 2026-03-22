@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return */
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import { handleFileInterface } from "./contracts/handleFileInterface";
 import { SupabaseService } from "src/config/supabase.config";
 
@@ -7,7 +7,8 @@ import { SupabaseService } from "src/config/supabase.config";
 export class HandleFileSupaBaseService implements handleFileInterface {
     constructor(
         @Inject(SupabaseService)
-        private readonly supabaseService: SupabaseService
+        private readonly supabaseService: SupabaseService,
+        private readonly logger: Logger
     ) { }
 
     async uploadFile(file: Express.Multer.File): Promise<string> {
@@ -33,10 +34,47 @@ export class HandleFileSupaBaseService implements handleFileInterface {
 
 
         if (error) {
+
             const errorMessage = error instanceof Error ? error.message : String(error);
             throw new Error(`Error uploading file: ${errorMessage}`);
         }
 
         return publicUrlData.publicUrl;
+    }
+
+    async deleteFile(fileUrl: string): Promise<void> {
+        const bucketName = 'travels';
+        try {
+
+            const relativePath = fileUrl.split(`public/${bucketName}`)[1];
+
+            if (!relativePath) {
+                throw new Error('Invalid URL');
+            }
+
+            const filePath = decodeURIComponent(relativePath);
+
+
+            const supabase = this.supabaseService.getClient();
+            const { error } = await supabase.storage
+                .from(bucketName)
+                .remove([filePath]);
+
+            if (error) {
+                throw error;
+            }
+
+        } catch (error) {
+            this.logger.error(`Error deleting file: ${fileUrl}`);
+            throw error;
+        }
+    }
+
+    verifyFileType(file: Express.Multer.File): boolean {
+        return file.mimetype.startsWith('image/');
+    }
+
+    verifyFileSize(file: Express.Multer.File): boolean {
+        return file.size <= 10 * 1024 * 1024; // 10MB
     }
 }

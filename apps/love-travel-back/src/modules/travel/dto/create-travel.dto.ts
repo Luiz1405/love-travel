@@ -1,5 +1,7 @@
 import { Type } from "class-transformer";
-import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength } from "class-validator";
+import { TravelStatus } from "../enum/travel-status.enum";
+import { IsAfter } from "src/utils/decorators/is-after.decorator";
 
 
 export class CreateTravelDto {
@@ -23,16 +25,18 @@ export class CreateTravelDto {
     @Type(() => Date)
     @IsDate()
     @IsOptional()
+    @IsAfter('startDate')
     endDate?: Date;
 
     @IsNumber()
+    @IsPositive()
     @IsNotEmpty()
     @Type(() => Number)
     total_spent: number;
 
     @IsString()
     @IsNotEmpty()
-    @IsEnum(['planned', 'ongoing', 'completed'])
+    @IsEnum(TravelStatus)
     status: string;
 
     @IsArray()
@@ -42,5 +46,6 @@ export class CreateTravelDto {
 
     @IsString()
     @IsOptional()
+    @MaxLength(1000, { message: 'Description must be less than 1000 characters' })
     description?: string;
 }

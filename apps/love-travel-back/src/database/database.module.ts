@@ -16,9 +16,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
                 database: configService.get<string>('DB_DATABASE'),
                 entities: [__dirname + '/../**/*.entity{.ts,.js}'],
                 synchronize: configService.get<string>('NODE_ENV') === 'development',
-                loggin: configService.get<string>('NODE_ENV') === 'development',
+                logging: configService.get<string>('NODE_ENV') === 'development',
             }),
         }),
     ],
 })
-export class DatabaseModule{}
+export class DatabaseModule { }

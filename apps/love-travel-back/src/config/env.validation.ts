@@ -29,4 +29,8 @@ export const envValidationSchema = Joi.object({
     }),
     SUPABASE_KEY: Joi.string().required(),
     SUPABASE_SERVICE_ROLE_KEY: Joi.string().required(),
+
+    //Validação de dados Redis
+    REDIS_HOST: Joi.string().required(),
+    REDIS_PORT: Joi.number().default(6379),
 })

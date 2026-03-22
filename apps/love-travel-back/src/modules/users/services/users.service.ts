@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,7 +17,7 @@ export class UsersService {
     async create(CreateUserDto: CreateUserDto): Promise<UserEntity> {
         const { email, name, password } = CreateUserDto;
 
-        const emailExists = await this.userRepository.findOne({ where: { email } });
+        const emailExists = await this.emailExists(email);
         if (emailExists) {
             throw new ConflictException('Email already exists');
         }
@@ -46,34 +46,24 @@ export class UsersService {
         });
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-        const user = await this.userRepository.findOne({ where: { id } });
-        if (!user) {
-            throw new NotFoundException('User not found');
-        }
+    async update(id: string, updateUserDto: UpdateUserDto, userId: string): Promise<UserEntity> {
+        this.userIsAuthenticated(id, userId);
 
-        const { email, password } = updateUserDto;
+        const user = await this.findUserOrFail(id);
+        await this.validateEmailChange(user, updateUserDto.email);
 
-        if (email && email !== user.email) {
-            if (await this.emailExists(email)) {
-                throw new ConflictException('Email already exists');
-            }
-        }
-
-        if (password) {
-            updateUserDto.password = await this.securityService.hashPassword(password);
-        }
-
-        this.userRepository.merge(user, updateUserDto);
+        const preparedDto = await this.prepareUpdateDto(updateUserDto);
+        this.userRepository.merge(user, preparedDto);
 
         return await this.userRepository.save(user);
     }
 
-    async delete(id: string): Promise<boolean> {
-        const result = await this.userRepository.delete(id);
-        if (result.affected === 0) {
-            throw new NotFoundException('User not found');
-        }
+    async delete(id: string, userId: string): Promise<boolean> {
+        this.userIsAuthenticated(id, userId);
+
+        const user = await this.findUserOrFail(id);
+        await this.userRepository.remove(user);
+
         return true;
     }
 
@@ -84,8 +74,44 @@ export class UsersService {
         });
     }
 
+    private userIsAuthenticated(id: string, userId: string): void {
+        if (id !== userId) {
+            throw new ForbiddenException('You are not allowed to handle this user');
+        }
+    }
+
+    private async findUserOrFail(id: string): Promise<UserEntity> {
+        const user = await this.userRepository.findOne({
+            where: { id }
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        return user;
+    }
+
+    private async validateEmailChange(user: UserEntity, newEmail?: string): Promise<void> {
+        if (!newEmail || newEmail === user.email) {
+            return;
+        }
+
+        const emailExists = await this.emailExists(newEmail);
+        if (emailExists) {
+            throw new ConflictException('Email already exists');
+        }
+    }
+
+    private async prepareUpdateDto(updateUserDto: UpdateUserDto): Promise<UpdateUserDto> {
+        const preparedDto = { ...updateUserDto };
+        if (preparedDto.password) {
+            preparedDto.password = await this.securityService.hashPassword(preparedDto.password);
+        }
+        return preparedDto;
+    }
+
     private async emailExists(email: string): Promise<boolean> {
         const emailExists = await this.userRepository.findOne({ where: { email } });
-        return emailExists ? true : false;
+        return !!emailExists;
     }
 }
