@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2, User } from "lucide-react";
 import { API_URLS } from "../../../../api/urls";
 
-interface LoginFormProps {
+interface RegisterFormProps {
     onSuccess: () => void;
-    onSubmit: (credentials: { email: string; password: string }) => Promise<void>;
+    onSubmit: (credentials: { name: string; email: string; password: string }) => Promise<void>;
 }
 
-export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
+export const RegisterForm = ({ onSuccess, onSubmit }: RegisterFormProps) => {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
         e.preventDefault();
         setError("");
 
-        if (!email || !password) {
+        if (!name || !email || !password) {
             setError("Preencha todos os campos");
             return;
         }
@@ -25,10 +26,10 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
         setIsLoading(true);
 
         try {
-            await onSubmit({ email, password });
+            await onSubmit({ name, email, password });
             onSuccess();
         } catch {
-            setError("E-mail ou senha invalidos");
+            setError("Erro ao cadastrar");
         } finally {
             setIsLoading(false);
         }
@@ -37,9 +38,9 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
     return (
         <div className="w-full max-w-md space-y-8 p-4">
             <div className="text-left space-y-2">
-                <h2 className="text-3xl font-bold text-slate-800">Bem-vindo de volta</h2>
+                <h2 className="text-3xl font-bold text-slate-800">Crie sua conta</h2>
                 <p className="text-slate-500 text-sm">
-                    Acesse sua conta para continuar planejando e relembrando suas viagens.
+                    Junte-se a nós para começar a planejar e registrar suas viagens.
                 </p>
             </div>
 
@@ -48,16 +49,29 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
                 className="w-full flex items-center justify-center gap-2 border border-slate-200 rounded-lg p-3 hover:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
             >
                 <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-                Continuar com Google
+                Cadastrar com Google
             </a>
 
             <div className="relative flex items-center py-2">
                 <div className="flex-grow border-t border-slate-200"></div>
-                <span className="flex-shrink mx-4 text-xs text-slate-400 uppercase">ou continue com e-mail</span>
+                <span className="flex-shrink mx-4 text-xs text-slate-400 uppercase">ou cadastre-se com e-mail</span>
                 <div className="flex-grow border-t border-slate-200"></div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Nome</label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                        <input
+                            type="text"
+                            placeholder="Seu nome"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
+                        />
+                    </div>
+                </div>
                 <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">E-mail</label>
                     <div className="relative">
@@ -73,10 +87,7 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
                 </div>
 
                 <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <label className="text-sm font-semibold text-slate-700">Senha</label>
-                        <a href="#" className="text-xs font-semibold text-sky-500 hover:underline">Esqueceu a senha?</a>
-                    </div>
+                    <label className="text-sm font-semibold text-slate-700">Senha</label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                         <input
@@ -96,13 +107,13 @@ export const LoginForm = ({ onSuccess, onSubmit }: LoginFormProps) => {
                     disabled={isLoading}
                     className="w-full bg-[#82C3FF] hover:bg-[#6ab3f5] text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center disabled:opacity-70"
                 >
-                    {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Entrar"}
+                    {isLoading ? <Loader2 className="animate-spin mr-2" /> : "Cadastrar"}
                 </button>
             </form>
 
             <p className="text-center text-sm text-slate-500">
-                Ainda não tem uma conta?{' '}
-                <a href="/register" className="text-sky-500 font-semibold hover:underline">Cadastre-se</a>
+                Já tem uma conta?{' '}
+                <a href="/login" className="text-sky-500 font-semibold hover:underline">Entrar</a>
             </p>
         </div>
     );

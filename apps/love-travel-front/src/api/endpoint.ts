@@ -3,6 +3,8 @@ export const ENDPOINTS = {
         login: '/auth/login',
         register: '/users',
         me: '/auth/me',
+        google: '/auth/google',
+        googleCallback: '/auth/google/callback',
     },
     destinations: {
         featured: '/destinations/featured',
