@@ -16,13 +16,13 @@ export function Navbar() {
                         Cadastrar uma viagem
                     </NavLink>
                 </nav>
-                <button
-                    type="button"
+                <Link
+                    to="/login"
                     aria-label="Perfil"
                     className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700 shadow-sm ring-1 ring-black/5 hover:bg-blue-200 transition-colors"
                 >
                     👤
-                </button>
+                </Link>
             </div>
         </header>
     );

@@ -557,3 +557,182 @@ Se quiser, me diga se prefere Tailwind ou CSS Modules que adapto os exemplos man
 
 Com isso, a página principal estará funcional e pronta para evoluir.
 
+
+## Parte 2 — Tela de Login (do zero até o POST /auth/login)
+
+Nesta seção você vai construir a tela de login exatamente no estilo do print: lado esquerdo com imagem “hero” ocupando metade da tela e copy; lado direito um painel com o formulário (Google opcional, campo e‑mail, senha, “Esqueci a senha”, botão Entrar e link “Cadastre‑se”).
+
+
+### 1) Estrutura e marcação
+
+Componentização sugerida:
+- `features/auth/LoginPage.tsx`: página que orquestra o layout “split” (imagem à esquerda, formulário à direita).
+- `features/auth/components/LoginForm.tsx`: somente o formulário, sem layout de página.
+
+Por que separar? O formulário pode ser reutilizado (ex.: modal) e testado isoladamente.
+
+Layout semântico:
+- A página usa `main` como wrapper.
+- O “split” é um `div` grid com `grid-cols-1 md:grid-cols-2`. A metade esquerda é puramente visual (usa `img` com `alt` descritivo e `object-cover`), a metade direita contém o `form`.
+
+Sugestão visual (classes Tailwind para guiar):
+- Esquerda: `relative h-dvh md:h-auto` + `img absolute inset-0 h-full w-full object-cover`.
+- Direita: um `section` centralizado verticalmente com largura máxima (ex.: `max-w-md mx-auto`).
+
+
+### 2) Validação e gerenciamento do formulário
+
+Você pode usar:
+- Opção A: React puro com `useState` + validações simples (regex/email).
+- Opção B: `react-hook-form` + `zod` (recomendado para escalabilidade).
+
+Para manter o stack enxuto neste momento, vou usar React puro e mostrar onde encaixar `react-hook-form` depois.
+
+Campos mínimos:
+- `email`: obrigatório e formato válido.
+- `password`: obrigatório, com no mínimo 6 caracteres (ajuste conforme regra).
+
+Feedbacks:
+- Erros inline sob cada campo.
+- Mensagem global no topo do formulário quando a API falha (ex.: credenciais inválidas).
+
+
+### 3) Chamada à API — POST /auth/login
+
+Contrato esperado (ajuste ao seu back depois):
+- Request: `{ email: string; password: string }`
+- Response (token): `{ accessToken: string; user: { id: string; name: string; email: string } }`
+
+Com React Query usamos `useMutation` para disparar o login e lidar com loading/erro de forma padronizada.
+
+Pseudocódigo do hook (em `features/auth/api/useLogin.ts`):
+
+```tsx
+import { useMutation } from '@tanstack/react-query';
+import { api } from '@/api/client';
+import { ENDPOINTS } from '@/api/endpoints';
+
+type LoginRequest = { email: string; password: string };
+type LoginResponse = {
+  accessToken: string;
+  user: { id: string; name: string; email: string };
+};
+
+export function useLogin() {
+  return useMutation({
+    mutationFn: async (payload: LoginRequest) => {
+      const { data } = await api.post<LoginResponse>(ENDPOINTS.auth.login, payload);
+      return data;
+    },
+  });
+}
+```
+
+Por que mutation? Porque login é uma ação pontual que altera estado da aplicação (sessão), não um simples “fetch em cache”.
+
+
+### 4) Persistência da sessão e interceptors
+
+Após sucesso do login:
+- Se o back retorna `accessToken` (JWT): salve em `localStorage` (ex.: `auth_token`) e atualize os interceptors para enviar `Authorization: Bearer ...`.
+- Se o back usa cookie HTTP‑Only: não precisa salvar nada; apenas confie em `withCredentials: true` já configurado no `api`.
+
+Exemplo fluxo com JWT:
+```tsx
+const { mutateAsync: login, isPending, error } = useLogin();
+
+async function onSubmit(form: { email: string; password: string }) {
+  const res = await login(form);
+  localStorage.setItem('auth_token', res.accessToken);
+  // opcional: salve user no estado global (Context) ou em React Query cache
+  window.location.href = '/travels'; // ou use navigate()
+}
+```
+
+Interceptor de request já cobre anexar o token do `localStorage` (definido no capítulo de API Layer). Para 401, você pode complementar o `interceptors.response` com um redirecionamento para `/login`.
+
+
+### 5) LoginForm — UI e acessibilidade
+
+Diretrizes:
+- Use `label` associado a `input` via `htmlFor` e `id` (melhor para leitores de tela).
+- `type="email"` no campo de email habilita teclado apropriado em mobile.
+- Botão “Entrar” deve ter `type="submit"` e exibir estado de carregamento (desabilitar enquanto envia).
+- Link “Esqueci a senha?” pode ir para `/forgot-password` (placeholder até existir).
+- “Continuar com Google” pode ser um botão secundário sem ação real por enquanto.
+
+Estrutura recomendada do formulário:
+- Container: `Card` leve com `shadow-sm` e `ring-1` para aproximar do print.
+- Inputs com classes consistentes (padding, borda, foco azul).
+- Erros: texto pequeno em vermelho logo abaixo do `input`.
+
+Exemplo de classes úteis para campos:
+- `className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"`
+
+
+### 6) Página `LoginPage` — layout em “split”
+
+Guia visual:
+- Wrapper: `main` com `min-h-dvh bg-slate-50`.
+- Grid: `grid grid-cols-1 md:grid-cols-2` para responsividade.
+- Coluna esquerda: imagem com `object-cover` e uma pequena copy no canto inferior esquerdo (como no print).
+- Coluna direita: centro vertical com logo pequeno e o `LoginForm` abaixo.
+
+
+### 7) Estados, erros e UX
+
+- Loading: desabilite inputs e botão; altere o texto para “Entrando...”
+- Erro de credenciais: exiba caixa sutil em vermelho topo do form (ex.: “E‑mail ou senha inválidos”).
+- Erro de rede: mensagem genérica e um botão “Tentar novamente”.
+- Atalhos de teclado: submit no Enter dentro do campo senha.
+- Acessibilidade: `aria-invalid` nos inputs com erro; `aria-live="polite"` na mensagem global.
+
+
+### 8) Proteção de rotas (preview)
+
+Quando começarmos “Minhas Viagens”, proteja com um wrapper simples:
+- `RequireAuth`: verifica se há `auth_token` (ou chama `/auth/me`); se não houver, redireciona a `/login`.
+- Estrutura no `router.tsx`:
+  - Rota pública: `/login`
+  - Rotas privadas: `/travels`, `/travels/new`
+
+Skeleton do guard (conceito):
+```tsx
+import { Navigate, Outlet } from 'react-router-dom';
+
+function isAuthenticated() {
+  return !!localStorage.getItem('auth_token');
+}
+
+export function RequireAuth() {
+  return isAuthenticated() ? <Outlet /> : <Navigate to="/login" replace />;
+}
+```
+
+No `router`:
+```tsx
+{
+  path: '/',
+  element: <RequireAuth />,
+  children: [
+    { path: '/travels', element: <TravelsListPage /> },
+    { path: '/travels/new', element: <CreateTravelPage /> },
+  ],
+}
+{ path: '/login', element: <LoginPage /> }
+```
+
+
+### 9) Checklist para você implementar agora
+
+1) Criar `features/auth/LoginPage.tsx` com o grid “split” e importar `LoginForm`.
+2) Criar `features/auth/components/LoginForm.tsx` com:
+   - Campos `email` e `password` + validação simples.
+   - Botão submit com loading, link “Esqueci a senha?” e “Cadastre‑se”.
+   - Chamada ao hook `useLogin`, salvando token e navegando para `/travels` em sucesso.
+3) Criar `features/auth/api/useLogin.ts` (mutation com Axios).
+4) Adicionar rota `/login` ao `router.tsx`.
+5) Opcional: implementar `RequireAuth` e proteger as rotas privadas.
+
+Se quiser, no próximo passo escrevo o esqueleto dos dois componentes (`LoginPage` e `LoginForm`) com comentários explicando cada parte e você cola/adapta no projeto.
+
