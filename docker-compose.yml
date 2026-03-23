@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: apps/love-travel-front/Dockerfile.frontend
     ports:
-      - "8080:81"
+      - "8080:80"
     networks:
       - love-travel-network
   # Banco Relacional
