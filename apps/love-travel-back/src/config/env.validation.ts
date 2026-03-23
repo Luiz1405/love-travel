@@ -23,6 +23,12 @@ export const envValidationSchema = Joi.object({
     //Validação JWT
     JWT_SECRET: Joi.string().required(),
 
+    //Validação OAuth Google
+    GOOGLE_CLIENT_ID: Joi.string().required(),
+    GOOGLE_CLIENT_SECRET: Joi.string().required(),
+    GOOGLE_CALLBACK_URL: Joi.string().uri().required(),
+    FRONTEND_URL: Joi.string().uri().required(),
+
     //Validação de dados Supabase
     SUPABASE_URL: Joi.string().required().messages({
         'string.uri': 'SUPABASE_URL must be a valid URL',

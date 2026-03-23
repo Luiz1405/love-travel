@@ -143,7 +143,7 @@ describe('UsersService', () => {
       // Act & Assert
       await expect(service.create(createUserDto)).rejects.toThrow(ConflictException);
       await expect(service.create(createUserDto)).rejects.toThrow('Email already exists');
-      
+
       // Verificar que hashPassword NÃO foi chamado (email já existe)
       expect(mockSecurityService.hashPassword).not.toHaveBeenCalled();
       expect(mockRepository.save).not.toHaveBeenCalled();

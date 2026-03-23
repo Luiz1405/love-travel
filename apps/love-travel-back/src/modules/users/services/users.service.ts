@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,23 +14,13 @@ export class UsersService {
         private readonly securityService: SecurityService,
     ) { }
 
-    async create(CreateUserDto: CreateUserDto): Promise<UserEntity> {
-        const { email, name, password } = CreateUserDto;
+    async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+        const hashedPassword = await this.securityService.hashPassword(createUserDto.password);
+        return this.persistUser({ ...createUserDto, password: hashedPassword, provider: 'local' });
+    }
 
-        const emailExists = await this.emailExists(email);
-        if (emailExists) {
-            throw new ConflictException('Email already exists');
-        }
-
-        const hashedPassword = await this.securityService.hashPassword(password);
-
-        const user = this.userRepository.create({
-            name,
-            email,
-            password: hashedPassword,
-        });
-
-        return await this.userRepository.save(user);
+    async createWithGoogle(data: any): Promise<UserEntity> {
+        return this.persistUser({ ...data, password: null, provider: 'google' });
     }
 
     async findAll(): Promise<UserEntity[]> {
@@ -113,5 +103,18 @@ export class UsersService {
     private async emailExists(email: string): Promise<boolean> {
         const emailExists = await this.userRepository.findOne({ where: { email } });
         return !!emailExists;
+    }
+
+    private async persistUser(data: Partial<UserEntity>): Promise<UserEntity> {
+        if (!data.email) {
+            throw new BadRequestException('Email is required');
+        }
+        const emailExists = await this.emailExists(data.email);
+        if (emailExists) {
+            throw new ConflictException('Email already exists');
+        }
+
+        const user = this.userRepository.create(data);
+        return await this.userRepository.save(user);
     }
 }

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from "../users/services/users.service";
 import { SecurityService } from "src/shared/security/security.service";
 import { LoginDto } from "./dto/login.dto";
+import { GoogleUserPayload } from "./types/google-user-payload";
 
 @Injectable()
 export class AuthService {
@@ -33,4 +34,25 @@ export class AuthService {
             }
         };
     }
+
+    async googleLogin(googleUser: GoogleUserPayload) {
+        let user = await this.usersService.findByEmail(googleUser.email);
+
+        if (!user) {
+            user = await this.usersService.createWithGoogle({
+                email: googleUser.email,
+                name: googleUser.name,
+                avatar: googleUser.picture,
+                provider: 'google',
+            });
+        }
+
+
+        const payload = { sub: user.id, email: user.email };
+
+        return {
+            access_token: await this.jwtService.signAsync(payload),
+        };
+    }
+
 }
