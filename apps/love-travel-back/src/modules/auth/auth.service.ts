@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from "../users/services/users.service";
 import { SecurityService } from "src/shared/security/security.service";
 import { LoginDto } from "./dto/login.dto";
 import { GoogleUserPayload } from "./types/google-user-payload";
+import { UpdatePasswordDto } from "./dto/update-password.dto";
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,22 @@ export class AuthService {
 
         return {
             access_token: await this.jwtService.signAsync(payload),
+        };
+    }
+
+    async forgotPassword(updatePasswordDto: UpdatePasswordDto) {
+        const { email, password } = updatePasswordDto;
+
+        const user = await this.usersService.findByEmail(email);
+
+        if (!user) {
+            throw new NotFoundException('Usuário não encontrado');
+        }
+
+        await this.usersService.update(user.id, { password }, user.id);
+
+        return {
+            message: 'Senha alterada com sucesso!'
         };
     }
 

@@ -6,6 +6,7 @@ import { ApiResponse } from "@nestjs/swagger";
 import { ApiStandarErrors } from "src/utils/decorators/swagger.decorator";
 import type { Request, Response } from "express";
 import { GoogleUserPayload } from "./types/google-user-payload";
+import { UpdatePasswordDto } from "./dto/update-password.dto";
 
 interface GoogleAuthRequest extends Request {
     user: GoogleUserPayload;
@@ -34,5 +35,12 @@ export class AuthController {
     async googleAuthRedirect(@Req() req: GoogleAuthRequest, @Res() res: Response) {
         const resultToken = await this.authService.googleLogin(req.user);
         res.redirect(`${process.env.FRONTEND_URL}/auth/google/callback?token=${resultToken.access_token}`);
+    }
+
+    @Post('forgot-password')
+    @ApiResponse({ status: 200, description: 'Password updated successfully.' })
+    @ApiStandarErrors()
+    async forgetPassword(@Body() updatePasswordDto: UpdatePasswordDto) {
+        return this.authService.forgotPassword(updatePasswordDto);
     }
 }

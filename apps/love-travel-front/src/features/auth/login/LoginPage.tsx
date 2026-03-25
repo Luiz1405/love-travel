@@ -1,10 +1,21 @@
 import { LoginForm } from "./components/LoginForm";
 import { useLogin } from "./api/useLogin";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import { useEffect } from "react";
 
 export function LoginPage() {
     const { mutateAsync } = useLogin();
     const navigate = useNavigate();
+    const { login } = useAuth();
+    const location = useLocation();
+    const successMessage = (location.state as { successMessage?: string } | null)?.successMessage;
+
+    useEffect(() => {
+        if (successMessage) {
+            navigate(location.pathname, { replace: true, state: null });
+        }
+    }, [successMessage, location.pathname, navigate]);
 
     return (
         <div className="min-h-dvh grid grid-cols-1 md:grid-cols-2">
@@ -24,9 +35,11 @@ export function LoginPage() {
             </div>
             <div className="flex items-center justify-center p-6 md:p-10 bg-white">
                 <LoginForm
+                    successMessage={successMessage}
                     onSubmit={async (credentials) => {
                         const res = await mutateAsync(credentials);
-                        localStorage.setItem("auth_token", res.accessToken);
+                        const token = res?.accessToken ?? res?.access_token;
+                        login(token);
                     }}
                     onSuccess={() => navigate("/")}
                 />

@@ -1,9 +1,11 @@
 import { RegisterForm } from "./components/RegisterForm";
 import { useRegister } from "./api/useRegister";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../login/AuthContext";
 
 export function RegisterPage() {
     const { mutateAsync } = useRegister();
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     return (
@@ -26,9 +28,14 @@ export function RegisterPage() {
                 <RegisterForm
                     onSubmit={async (credentials) => {
                         const res = await mutateAsync(credentials);
-                        localStorage.setItem("auth_token", res.accessToken);
+                        const token = res?.accessToken ?? res?.access_token;
+                        if (!token) {
+                            navigate("/login");
+                            return;
+                        }
+                        login(token);
                     }}
-                    onSuccess={() => navigate("/")}
+                    onSuccess={() => navigate("/login", { state: { successMessage: "Cadastro realizado com sucesso" } })}
                 />
             </div>
         </div>

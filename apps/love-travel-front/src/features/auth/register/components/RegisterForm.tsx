@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, Lock, Loader2, User } from "lucide-react";
 import { API_URLS } from "../../../../api/urls";
+import { extractApiMessage, mapErrorToField } from "../../../../utils/extract-api-message";
 
 interface RegisterFormProps {
     onSuccess: () => void;
@@ -13,10 +14,12 @@ export const RegisterForm = ({ onSuccess, onSubmit }: RegisterFormProps) => {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
+        setFieldErrors({});
 
         if (!name || !email || !password) {
             setError("Preencha todos os campos");
@@ -28,8 +31,15 @@ export const RegisterForm = ({ onSuccess, onSubmit }: RegisterFormProps) => {
         try {
             await onSubmit({ name, email, password });
             onSuccess();
-        } catch {
-            setError("Erro ao cadastrar");
+        } catch (err) {
+            const rawMessage = extractApiMessage(err);
+            const mappedError = mapErrorToField(rawMessage);
+
+            if (mappedError.field) {
+                setFieldErrors((prev) => ({ ...prev, [mappedError.field!]: mappedError.message }));
+            } else {
+                setError(mappedError.message || "Erro ao cadastrar");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -82,7 +92,14 @@ export const RegisterForm = ({ onSuccess, onSubmit }: RegisterFormProps) => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
+                            aria-invalid={!!fieldErrors.email}
+                            aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
                         />
+                        {fieldErrors.email && (
+                            <p id="register-email-error" className="mt-1 text-xs text-red-500">
+                                {fieldErrors.email}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -96,7 +113,14 @@ export const RegisterForm = ({ onSuccess, onSubmit }: RegisterFormProps) => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
+                            aria-invalid={!!fieldErrors.password}
+                            aria-describedby={fieldErrors.password ? "register-password-error" : undefined}
                         />
+                        {fieldErrors.password && (
+                            <p id="register-password-error" className="mt-1 text-xs text-red-500">
+                                {fieldErrors.password}
+                            </p>
+                        )}
                     </div>
                 </div>
 

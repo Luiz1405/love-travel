@@ -46,6 +46,6 @@ export class CreateTravelDto {
 
     @IsString()
     @IsOptional()
-    @MaxLength(1000, { message: 'Description must be less than 1000 characters' })
+    @MaxLength(1000, { message: 'A descrição não pode ter mais de 1000 caracteres.' })
     description?: string;
 }

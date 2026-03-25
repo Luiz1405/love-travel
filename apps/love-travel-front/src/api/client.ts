@@ -20,7 +20,7 @@ api.interceptors.response.use(
             localStorage.removeItem('auth_token');
             window.location.href = '/login';
         }
-        return Promise.reject(error.response.data.message);
+        return Promise.reject(error);
     }
 );
 

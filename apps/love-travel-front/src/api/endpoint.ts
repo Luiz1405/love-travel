@@ -5,6 +5,7 @@ export const ENDPOINTS = {
         me: '/auth/me',
         google: '/auth/google',
         googleCallback: '/auth/google/callback',
+        forgotPassword: '/auth/forgot-password',
     },
     destinations: {
         featured: '/destinations/featured',

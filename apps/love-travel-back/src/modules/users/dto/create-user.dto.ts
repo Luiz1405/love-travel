@@ -3,17 +3,17 @@ import { IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-valid
 export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
-    @MinLength(3, { message: 'Name must be at least 3 characters long' })
-    @MaxLength(100, { message: 'Name must be less than 100 characters' })
+    @MinLength(3, { message: 'O nome precisa ter pelo menos 3 caracteres.' })
+    @MaxLength(100, { message: 'O nome não pode ter mais de 100 caracteres.' })
     name: string;
 
-    @IsEmail({}, { message: 'Invalid email' })
+    @IsEmail({}, { message: 'Email inválido.' })
     @IsNotEmpty()
     email: string;
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(8, { message: 'Password must be at least 8 characters long' })
-    @MaxLength(20, { message: 'Password must be less than 20 characters' })
+    @MinLength(8, { message: 'A senha precisa ter pelo menos 8 caracteres.' })
+    @MaxLength(20, { message: 'A senha não pode ter mais de 20 caracteres.' })
     password: string;
 }
