@@ -2,7 +2,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Travel, TravelDocument } from "src/database/schema/travel.schema";
 import { CreateTravelDto } from "../dto/create-travel.dto";
-import { BadRequestException, ForbiddenException, Inject, NotFoundException } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, ForbiddenException, HttpException, Inject, NotFoundException } from "@nestjs/common";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
 import type { handleFileInterface } from "./../../../utils/contracts/handleFileInterface";
 import { RedisService } from "src/modules/redis/service/redis.service";
@@ -24,19 +24,22 @@ export class TravelService {
         photos: Express.Multer.File[],
         userId: string
     ): Promise<TravelDocument> {
-        createTravelDto.userId = userId;
-        createTravelDto.photos = await this.uploadPhotos(photos);
 
         try {
-            const newTravel = await this.travelModel.create(createTravelDto);
+            createTravelDto.photos = await this.uploadPhotos(photos);
+
+            const newTravel = await this.travelModel.create({ ...createTravelDto, userId });
 
             await this.deleteOldCache(userId);
 
             return newTravel;
-        } catch (error) {
-            await this.deletePhotos(createTravelDto.photos);
+        } catch (err: unknown) {
+            if (createTravelDto?.photos?.length) {
+                await this.deletePhotos(createTravelDto.photos).catch(() => { });
+            }
 
-            throw error;
+            if (err instanceof HttpException) throw err;
+            throw new BadGatewayException('Falha ao processar upload das fotos.');
         }
     }
 
@@ -76,7 +79,28 @@ export class TravelService {
         return travel;
     }
 
-    async update(id: string, updateTravelDto: UpdateTravelDto, userId: string): Promise<TravelDocument | null> {
+    async findByAnyInput(userId: string, searchItem: string, paginationDto: PaginationDto): Promise<Travel[]> {
+        const { skip, limit } = paginationDto;
+        return this.travelModel.find({
+            userId,
+            $or: [
+                { title: { $regex: searchItem ?? '', $options: 'i' } },
+                { destination: { $regex: searchItem ?? '', $options: 'i' } },
+                { status: { $regex: searchItem ?? '', $options: 'i' } },
+            ],
+        })
+            .skip(skip)
+            .limit(limit)
+            .lean()
+            .exec();
+    }
+
+    async update(
+        id: string,
+        updateTravelDto: UpdateTravelDto,
+        userId: string,
+        photos: Express.Multer.File[] = [],
+    ): Promise<TravelDocument | null> {
         const travel = await this.travelExists(id);
 
         if (!travel) {
@@ -87,7 +111,17 @@ export class TravelService {
             throw new ForbiddenException('You are not allowed to update this travel');
         }
 
-        const updatedTravel = await this.travelModel.findByIdAndUpdate(id, updateTravelDto, { new: true }).exec();
+        const uploadedPhotos = await this.uploadPhotos(photos);
+        const nextPhotos = uploadedPhotos.length
+            ? [...(travel.photos ?? []), ...uploadedPhotos]
+            : updateTravelDto.photos;
+
+        const payloadToUpdate: UpdateTravelDto = {
+            ...updateTravelDto,
+            ...(nextPhotos ? { photos: nextPhotos } : {}),
+        };
+
+        const updatedTravel = await this.travelModel.findByIdAndUpdate(id, payloadToUpdate, { new: true }).exec();
 
         await this.deleteOldCache(userId);
 
@@ -165,6 +199,6 @@ export class TravelService {
     }
 
     private async deleteOldCache(userId: string): Promise<void> {
-        await this.redisService.del(`travels_user_${userId}`).catch(() => { });
+        await this.redisService.delByPattern(`travels_user_${userId}:*`).catch(() => { });
     }
 }

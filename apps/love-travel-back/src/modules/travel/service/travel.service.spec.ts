@@ -68,7 +68,7 @@ describe('TravelService', () => {
         startDate: new Date('2024-01-01'),
         endDate: new Date('2024-01-10'),
         total_spent: 5000,
-        status: 'planned',
+        status: 'Planejado',
         photos: [],
         description: 'Uma viagem incrível',
         createdAt: new Date(),
@@ -118,7 +118,7 @@ describe('TravelService', () => {
                 startDate: new Date('2024-01-01'),
                 endDate: new Date('2024-01-10'),
                 total_spent: 5000,
-                status: 'planned',
+                status: 'Planejado',
                 photos: [],
             };
 
@@ -145,7 +145,7 @@ describe('TravelService', () => {
                 destination: 'Paris',
                 startDate: new Date('2024-01-01'),
                 total_spent: 5000,
-                status: 'planned',
+                status: 'Planejado',
             };
 
             const photo1: Express.Multer.File = {
@@ -203,7 +203,7 @@ describe('TravelService', () => {
                 destination: 'Paris',
                 startDate: new Date('2024-01-01'),
                 total_spent: 5000,
-                status: 'planned',
+                status: 'Planejado',
             };
 
             const invalidPhoto: Express.Multer.File = {
@@ -238,7 +238,7 @@ describe('TravelService', () => {
                 destination: 'Paris',
                 startDate: new Date('2024-01-01'),
                 total_spent: 5000,
-                status: 'planned',
+                status: 'Planejado',
             };
 
             const largePhoto: Express.Multer.File = {
@@ -274,7 +274,7 @@ describe('TravelService', () => {
                 destination: 'Paris',
                 startDate: new Date('2024-01-01'),
                 total_spent: 5000,
-                status: 'planned',
+                status: 'Planejado',
             };
 
             const photo: Express.Multer.File = {

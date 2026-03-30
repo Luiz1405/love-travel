@@ -7,10 +7,6 @@ import { IsAfter } from "src/utils/decorators/is-after.decorator";
 export class CreateTravelDto {
     @IsString()
     @IsNotEmpty()
-    userId: string;
-
-    @IsString()
-    @IsNotEmpty()
     title: string;
 
     @IsString()
@@ -29,7 +25,7 @@ export class CreateTravelDto {
     endDate?: Date;
 
     @IsNumber()
-    @IsPositive()
+    @IsPositive({ message: 'Total gasto deve ser um número positivo ou maior que 0.' })
     @IsNotEmpty()
     @Type(() => Number)
     total_spent: number;

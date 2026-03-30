@@ -1,16 +1,16 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UserEntity } from '../entities/user.entity';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { SecurityService } from 'src/shared/security/security.service';
+import type { UsersRepository } from '../repositories/contracts/users-repository.contract';
+import { USERS_REPOSITORY } from '../repositories/contracts/users-repository.contract';
 
 @Injectable()
 export class UsersService {
     constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        @Inject(USERS_REPOSITORY)
+        private readonly userRepository: UsersRepository,
         private readonly securityService: SecurityService,
     ) { }
 

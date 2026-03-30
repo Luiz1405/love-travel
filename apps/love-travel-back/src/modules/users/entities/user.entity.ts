@@ -1,5 +1,5 @@
 import { IsOptional } from 'class-validator';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
@@ -27,6 +27,6 @@ export class UserEntity {
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @CreateDateColumn({ name: 'updated_at' })
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 }

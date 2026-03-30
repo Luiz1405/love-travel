@@ -1,5 +1,5 @@
 export enum TravelStatus {
-    PLANNED = 'planned',
-    ONGOING = 'ongoing',
-    COMPLETED = 'completed',
+    PLANNED = 'Planejado',
+    ONGOING = 'Em andamento',
+    COMPLETED = 'Concluído',
 }

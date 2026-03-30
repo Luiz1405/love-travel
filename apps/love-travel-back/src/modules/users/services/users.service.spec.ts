@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from '../entities/user.entity';
 import { SecurityService } from 'src/shared/security/security.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { USERS_REPOSITORY, UsersRepository } from '../repositories/contracts/users-repository.contract';
 
 /**
  * Testes Unitários - UsersService
@@ -23,7 +22,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let repository: Repository<UserEntity>;
+  let repository: UsersRepository;
   let securityService: SecurityService;
 
   // Mock do Repository - simula o banco de dados
@@ -51,8 +50,8 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          // Mock do TypeORM Repository
-          provide: getRepositoryToken(UserEntity),
+          // Mock do repository abstrato
+          provide: USERS_REPOSITORY,
           useValue: mockRepository,
         },
         {
@@ -65,7 +64,7 @@ describe('UsersService', () => {
 
     // Obter instâncias dos serviços
     service = module.get<UsersService>(UsersService);
-    repository = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
+    repository = module.get<UsersRepository>(USERS_REPOSITORY);
     securityService = module.get<SecurityService>(SecurityService);
   });
 

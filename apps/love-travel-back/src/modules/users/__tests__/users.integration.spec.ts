@@ -1,13 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UsersModule } from '../user.module';
 import { UserEntity } from '../entities/user.entity';
 import { SecurityService } from 'src/shared/security/security.service';
 import { SecurityModule } from 'src/shared/security/security.module';
-import { JwtService } from '@nestjs/jwt';
+import { USERS_REPOSITORY, UsersRepository } from '../repositories/contracts/users-repository.contract';
 
 /**
  * Testes de Integração - Users
@@ -29,7 +27,7 @@ import { JwtService } from '@nestjs/jwt';
 
 describe('UsersController (Integration)', () => {
     let app: INestApplication;
-    let repository: Repository<UserEntity>;
+    let repository: UsersRepository;
     let securityService: SecurityService;
 
     // Dados de teste
@@ -53,7 +51,7 @@ describe('UsersController (Integration)', () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [UsersModule, SecurityModule],
         })
-            .overrideProvider(getRepositoryToken(UserEntity))
+            .overrideProvider(USERS_REPOSITORY)
             .useValue({
                 // Mock do repository para testes
                 create: jest.fn(),
@@ -62,6 +60,10 @@ describe('UsersController (Integration)', () => {
                 findOne: jest.fn(),
                 merge: jest.fn(),
                 remove: jest.fn(),
+                findAll: jest.fn(),
+                findById: jest.fn(),
+                findByIdOrFailSelection: jest.fn(),
+                findByEmail: jest.fn(),
             })
             .compile();
 
@@ -69,7 +71,7 @@ describe('UsersController (Integration)', () => {
 
         await app.init();
 
-        repository = moduleFixture.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
+        repository = moduleFixture.get<UsersRepository>(USERS_REPOSITORY);
         securityService = moduleFixture.get<SecurityService>(SecurityService);
     });
 

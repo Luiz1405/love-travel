@@ -12,6 +12,7 @@ export const ENDPOINTS = {
     },
     travels: {
         listAll: '/travels',
+        search: '/travels/search',
         create: '/travels',
         update: (id: string | number) => `/travels/${id}`,
         delete: (id: string | number) => `/travels/${id}`,

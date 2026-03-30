@@ -24,13 +24,13 @@ export class AuthController {
 
     @Get('google')
     @UseGuards(AuthGuard('google'))
-    @ApiResponse({ status: 302, description: 'Google authentication successful.' })
+    @ApiResponse({ status: 302, description: 'Autenticação com Google realizada com sucesso.' })
     @ApiStandarErrors()
     googleAuth() { }
 
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    @ApiResponse({ status: 200, description: 'Google authentication successful.' })
+    @ApiResponse({ status: 200, description: 'Autenticação com Google realizada com sucesso.' })
     @ApiStandarErrors()
     async googleAuthRedirect(@Req() req: GoogleAuthRequest, @Res() res: Response) {
         const resultToken = await this.authService.googleLogin(req.user);
@@ -38,7 +38,7 @@ export class AuthController {
     }
 
     @Post('forgot-password')
-    @ApiResponse({ status: 200, description: 'Password updated successfully.' })
+    @ApiResponse({ status: 200, description: 'Senha atualizada com sucesso.' })
     @ApiStandarErrors()
     async forgetPassword(@Body() updatePasswordDto: UpdatePasswordDto) {
         return this.authService.forgotPassword(updatePasswordDto);

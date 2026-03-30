@@ -14,7 +14,7 @@ export const TravelService = {
     },
 
     async update(id: string, data: any) {
-        const response = await api.put(ENDPOINTS.travels.update(id), data);
+        const response = await api.patch(ENDPOINTS.travels.update(id), data);
         return response.data;
     },
 
@@ -23,8 +23,13 @@ export const TravelService = {
         return response.data;
     },
 
-    async getAll() {
-        const response = await api.get(ENDPOINTS.travels.listAll);
+    async getAll(params?: { skip?: number; limit?: number }) {
+        const response = await api.get(ENDPOINTS.travels.listAll, { params });
+        return response.data;
+    },
+
+    async search(params: { search: string; skip?: number; limit?: number }) {
+        const response = await api.get(ENDPOINTS.travels.search, { params });
         return response.data;
     },
 }

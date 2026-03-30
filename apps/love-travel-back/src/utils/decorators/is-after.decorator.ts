@@ -17,8 +17,8 @@ export function IsAfter(property: string, validationOptions?: ValidationOptions)
                     if (!value || !relatedValue) return true;
                     return value >= relatedValue;
                 },
-                defaultMessage(args: ValidationArguments) {
-                    return `${args.property} must be later than ${args.constraints[0]}`;
+                defaultMessage() {
+                    return `Data de término deve ser depois da Data de início`;
                 }
             }
         })

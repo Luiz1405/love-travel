@@ -16,7 +16,7 @@ export function Hero() {
                     nossa plataforma focada em você.
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-3">
-                    <Link to="/travels/new">
+                    <Link to="/travels/create">
                         <Button size="lg">Cadastrar uma viagem</Button>
                     </Link>
                     <Link to="/travels">

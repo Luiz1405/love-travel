@@ -24,7 +24,7 @@ export class Travel {
     @Prop({ required: true })
     total_spent: number;
 
-    @Prop({ type: String, enum: ['planned', 'ongoing', 'completed'], default: 'planned' })
+    @Prop({ type: String, enum: ['Planejado', 'Em andamento', 'Concluído'], default: 'Planejado' })
     status: string;
 
     @Prop({ type: [String] })
