@@ -61,8 +61,8 @@ jobs:
 
       - name: Install dependencies (backend)
         working-directory: apps/love-travel-back
-        
-        run: npm ci
+
+        run: npm install
       - name: Run Lint (backend)
         continue-on-error: true
 
