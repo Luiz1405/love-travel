@@ -79,9 +79,7 @@ export function ListTravelsPage() {
 
     const selectedTravel = filteredTravels.find((travel) => getTravelId(travel) === effectiveSelectedId) ?? null;
 
-    // Reset indices when selecting a new travel is handled in the click handler
-
-    const heroPhotos = selectedTravel?.photos ?? [];
+    const heroPhotos = useMemo(() => selectedTravel?.photos ?? [], [selectedTravel]);
     const heroImage = heroPhotos[heroPhotoIndex] ?? '/images/praias-tropicais.jpg';
 
     useEffect(() => {

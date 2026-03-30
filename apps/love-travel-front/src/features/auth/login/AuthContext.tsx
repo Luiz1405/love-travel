@@ -1,16 +1,5 @@
-import { createContext, useMemo, useState } from "react";
-
-type AuthContextType = {
-    isAuthenticated: boolean;
-    login: (token: string) => void;
-    logout: () => void;
-};
-
-export const AuthContext = createContext<AuthContextType>({
-    isAuthenticated: false,
-    login: () => { },
-    logout: () => { }
-});
+import { useMemo, useState } from "react";
+import { AuthContext } from "./context";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(() => {

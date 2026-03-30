@@ -33,17 +33,17 @@ export function UpdateTravelPage() {
         enabled: !!id,
     });
 
-    // The following effect initializes controlled fields when data arrives
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     useEffect(() => {
         if (!data) return;
-        setTitle(data.title ?? '');
-        setDestination(data.destination ?? '');
-        setStartDate(toInputDate(data.startDate));
-        setEndDate(toInputDate(data.endDate));
-        setTotalCost(String(data.total_spent ?? ''));
-        setStatus((data.status ?? 'Planejado') as TravelStatus);
-        setDescription(data.description ?? '');
+
+        setTitle((prev) => (prev ? prev : data.title ?? ''));
+        setDestination((prev) => (prev ? prev : data.destination ?? ''));
+        setStartDate((prev) => (prev ? prev : toInputDate(data.startDate)));
+        setEndDate((prev) => (prev ? prev : toInputDate(data.endDate)));
+        setTotalCost((prev) => (prev ? prev : String(data.total_spent ?? '')));
+        setStatus((prev) => (prev ? prev : ((data.status ?? 'Planejado') as TravelStatus)));
+        setDescription((prev) => (prev ? prev : (data.description ?? '')));
     }, [data]);
 
     const { mutateAsync: updateTravel, isPending } = useMutation({

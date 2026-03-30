@@ -1,16 +1,30 @@
+function isString(value: unknown): value is string {
+    return typeof value === 'string';
+}
+
+function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every((v) => typeof v === 'string');
+}
+
 export function extractApiMessage(error: unknown): string {
-    if (typeof error === 'string') return error;
-    const maybeObj = error as { response?: { data?: any }, message?: unknown } | undefined;
-    const data = maybeObj?.response?.data;
+    if (isString(error)) return error;
+    const maybeObj = error as { response?: { data?: unknown }; message?: unknown } | undefined;
+    const data = maybeObj?.response?.data as unknown;
 
-    if (Array.isArray(data?.message?.message) && data.message.message.length) {
-        return data.message.message[0];
+    if (data && typeof data === 'object') {
+        const record = data as Record<string, unknown>;
+        const messageCandidate = record.message;
+        const errorCandidate = record.error;
+        if (messageCandidate && typeof messageCandidate === 'object') {
+            const inner = (messageCandidate as Record<string, unknown>).message;
+            if (isStringArray(inner) && inner.length) return inner[0];
+        }
+
+        if (isStringArray(errorCandidate) && errorCandidate.length) return errorCandidate[0];
+        if (isStringArray(messageCandidate) && messageCandidate.length) return messageCandidate[0];
+        if (isString(messageCandidate)) return messageCandidate;
     }
-
-    if (Array.isArray(data?.error) && data.error.length) return data.error[0];
-    if (Array.isArray(data?.message) && data.message.length) return data.message[0];
-    if (typeof data?.message === 'string') return data.message;
-    if (typeof maybeObj?.message === 'string') return maybeObj.message;
+    if (isString(maybeObj?.message)) return maybeObj.message as string;
 
     return 'Erro ao processar solicitação.';
 }
