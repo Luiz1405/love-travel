@@ -1,7 +1,7 @@
 import { LoginForm } from "./components/LoginForm";
 import { useLogin } from "./api/useLogin";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "./useAuth";
 import { useEffect } from "react";
 
 export function LoginPage() {

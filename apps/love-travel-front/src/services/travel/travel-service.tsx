@@ -3,7 +3,7 @@ import { ENDPOINTS } from "../../api/endpoint";
 
 
 export const TravelService = {
-    async create(data: any) {
+    async create(data: unknown) {
         const response = await api.post(ENDPOINTS.travels.create, data);
         return response.data;
     },
@@ -13,7 +13,15 @@ export const TravelService = {
         return response.data;
     },
 
-    async update(id: string, data: any) {
+    async update(id: string, data: FormData | {
+        title: string;
+        destination: string;
+        startDate: string;
+        endDate: string;
+        total_spent: number;
+        status: string;
+        description: string;
+    }) {
         const response = await api.patch(ENDPOINTS.travels.update(id), data);
         return response.data;
     },

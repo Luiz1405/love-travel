@@ -70,7 +70,7 @@ export function TravelForm({
             setStatus('Planejado');
             setDescription('');
             setPhotos([]);
-        } catch (err: any) {
+        } catch (err: unknown) {
             const rawMessage = extractApiMessage(err) || 'Não foi possível salvar a viagem.';
             const msgLower = rawMessage.toLowerCase();
             const isEndDateValidationError =

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 
 type AuthContextType = {
     isAuthenticated: boolean;
@@ -6,18 +6,20 @@ type AuthContextType = {
     logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
     isAuthenticated: false,
     login: () => { },
     logout: () => { }
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [token, setToken] = useState<string | null>(null);
-
-    useEffect(() => {
-        setToken(localStorage.getItem('auth_token'));
-    }, []);
+    const [token, setToken] = useState<string | null>(() => {
+        try {
+            return localStorage.getItem('auth_token');
+        } catch {
+            return null;
+        }
+    });
 
     const value = useMemo(
         () => ({
@@ -37,4 +39,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthProvider;

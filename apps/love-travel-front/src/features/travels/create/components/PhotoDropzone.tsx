@@ -6,8 +6,8 @@ export function PhotoDropzone({ onFilesSelected }: { onFilesSelected: (files: Fi
     const [localFiles, setLocalFiles] = useState<File[]>([]);
     const onDrop = useCallback((accepted: File[]) => {
         setLocalFiles((prev) => {
-            const existing = new Set(prev.map((f) => `${f.name}-${f.size}-${(f as any).lastModified}`));
-            const merged = [...prev, ...accepted.filter((f) => !existing.has(`${f.name}-${f.size}-${(f as any).lastModified}`))];
+            const existing = new Set(prev.map((f) => `${f.name}-${f.size}-${f.lastModified ?? 0}`));
+            const merged = [...prev, ...accepted.filter((f) => !existing.has(`${f.name}-${f.size}-${f.lastModified ?? 0}`))];
             onFilesSelected(merged);
             return merged;
         });
@@ -33,7 +33,7 @@ export function PhotoDropzone({ onFilesSelected }: { onFilesSelected: (files: Fi
             {localFiles.length > 0 && (
                 <div className="mt-4 grid grid-cols-3 gap-2">
                     {localFiles.map((f) => (
-                        <div key={`${f.name}-${f.size}-${(f as any).lastModified ?? ''}`} className="text-xs text-slate-600 truncate">{f.name}</div>
+                        <div key={`${f.name}-${f.size}-${f.lastModified ?? ''}`} className="text-xs text-slate-600 truncate">{f.name}</div>
                     ))}
                 </div>
             )}

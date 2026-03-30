@@ -33,6 +33,8 @@ export function UpdateTravelPage() {
         enabled: !!id,
     });
 
+    // The following effect initializes controlled fields when data arrives
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (!data) return;
         setTitle(data.title ?? '');
@@ -77,7 +79,7 @@ export function UpdateTravelPage() {
                 form.append('status', status);
                 form.append('description', description);
                 photos.forEach((file) => form.append('photos', file));
-                await updateTravel(form as any);
+                await updateTravel(form);
             } else {
                 await updateTravel({
                     title,

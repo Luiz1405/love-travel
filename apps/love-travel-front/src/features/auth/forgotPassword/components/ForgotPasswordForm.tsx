@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForgotPassword } from "../api/useForgotPassword";
 import { Loader2, Lock, Mail } from "lucide-react";
+import { extractApiMessage } from "../../../../utils/extract-api-message";
 
 export function ForgotPasswordForm() {
     const { mutateAsync, isPending } = useForgotPassword();
@@ -34,12 +35,8 @@ export function ForgotPasswordForm() {
             await mutateAsync({ email, password: newPassword });
             setGlobalMsg({ type: 'success', text: 'Senha redefinida com sucesso.' });
             setNewPassword('');
-        } catch (err: any) {
-            const msg =
-                err?.response?.data?.message?.[0] ||
-                err?.response?.data?.message ||
-                err?.message ||
-                'Não foi possível redefinir a senha.';
+        } catch (err: unknown) {
+            const msg = extractApiMessage(err) || 'Não foi possível redefinir a senha.';
             setGlobalMsg({ type: 'error', text: msg });
         }
     }

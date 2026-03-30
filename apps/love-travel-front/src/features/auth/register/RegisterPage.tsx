@@ -1,7 +1,7 @@
 import { RegisterForm } from "./components/RegisterForm";
 import { useRegister } from "./api/useRegister";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../login/AuthContext";
+import { useAuth } from "../login/useAuth";
 
 export function RegisterPage() {
     const { mutateAsync } = useRegister();

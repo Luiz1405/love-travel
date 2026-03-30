@@ -2,7 +2,7 @@ import { api } from "../../api/client";
 import { ENDPOINTS } from "../../api/endpoint";
 
 export const UserService = {
-    async create(data: any) {
+    async create(data: unknown) {
         const response = await api.post(ENDPOINTS.users.create, data);
         return response.data;
     },
@@ -12,7 +12,7 @@ export const UserService = {
         return response.data;
     },
 
-    async update(id: string, data: any) {
+    async update(id: string, data: unknown) {
         const response = await api.put(ENDPOINTS.users.update(id), data);
         return response.data;
     },

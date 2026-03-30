@@ -33,9 +33,7 @@ export function ListTravelsPage() {
         return () => window.clearTimeout(timeoutId);
     }, [search]);
 
-    useEffect(() => {
-        setTravelPage(1);
-    }, [debouncedSearch]);
+    // Reset page will be handled in the search input onChange to avoid setState in effects
 
     const { data: travels = [], isLoading, isError, error } = useTravels({
         page: travelPage,
@@ -73,25 +71,15 @@ export function ListTravelsPage() {
     });
 
     const filteredTravels = useMemo(() => travels, [travels]);
-
-    useEffect(() => {
-        if (!filteredTravels.length) {
-            setSelectedTravelId(null);
-            return;
-        }
-
-        const hasSelectedInList = filteredTravels.some((travel) => getTravelId(travel) === selectedTravelId);
-        if (!selectedTravelId || !hasSelectedInList) {
-            setSelectedTravelId(getTravelId(filteredTravels[0]));
-        }
+    const effectiveSelectedId = useMemo(() => {
+        if (!filteredTravels.length) return null;
+        const exists = filteredTravels.some((t) => getTravelId(t) === selectedTravelId);
+        return exists && selectedTravelId ? selectedTravelId : getTravelId(filteredTravels[0]);
     }, [filteredTravels, selectedTravelId]);
 
-    const selectedTravel = filteredTravels.find((travel) => getTravelId(travel) === selectedTravelId) ?? null;
+    const selectedTravel = filteredTravels.find((travel) => getTravelId(travel) === effectiveSelectedId) ?? null;
 
-    useEffect(() => {
-        setHeroPhotoIndex(0);
-        setGalleryPage(1);
-    }, [selectedTravelId]);
+    // Reset indices when selecting a new travel is handled in the click handler
 
     const heroPhotos = selectedTravel?.photos ?? [];
     const heroImage = heroPhotos[heroPhotoIndex] ?? '/images/praias-tropicais.jpg';
@@ -106,14 +94,8 @@ export function ListTravelsPage() {
 
     const galleryPhotos = selectedTravel?.photos ?? [];
     const galleryTotalPages = Math.max(1, Math.ceil(galleryPhotos.length / GALLERY_PAGE_SIZE));
-
-    useEffect(() => {
-        if (galleryPage > galleryTotalPages) {
-            setGalleryPage(galleryTotalPages);
-        }
-    }, [galleryPage, galleryTotalPages]);
-
-    const galleryStart = (galleryPage - 1) * GALLERY_PAGE_SIZE;
+    const safeGalleryPage = Math.min(galleryPage, galleryTotalPages);
+    const galleryStart = (safeGalleryPage - 1) * GALLERY_PAGE_SIZE;
     const currentGallery = galleryPhotos.slice(galleryStart, galleryStart + GALLERY_PAGE_SIZE);
 
     if (isError) {
@@ -161,7 +143,10 @@ export function ListTravelsPage() {
                                 <Search className="h-4 w-4" />
                                 <input
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                        setTravelPage(1);
+                                    }}
                                     placeholder="Buscar destinos..."
                                     className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
                                 />
@@ -180,13 +165,17 @@ export function ListTravelsPage() {
 
                             {filteredTravels.map((travel) => {
                                 const travelId = getTravelId(travel);
-                                const isSelected = travelId === selectedTravelId;
+                                const isSelected = travelId === effectiveSelectedId;
                                 const thumb = travel.photos[0] ?? '/images/praias-paradisiacas.jpg';
 
                                 return (
                                     <div
                                         key={travelId}
-                                        onClick={() => setSelectedTravelId(travelId)}
+                                        onClick={() => {
+                                            setSelectedTravelId(travelId);
+                                            setHeroPhotoIndex(0);
+                                            setGalleryPage(1);
+                                        }}
                                         className={`w-full cursor-pointer rounded-lg border p-2 text-left transition ${isSelected
                                             ? 'border-sky-300 bg-sky-50'
                                             : 'border-slate-200 bg-white hover:border-slate-300'
@@ -321,12 +310,12 @@ export function ListTravelsPage() {
                                                 Anterior
                                             </button>
                                             <span className="text-sm text-slate-600">
-                                                Página {galleryPage} de {galleryTotalPages}
+                                                Página {safeGalleryPage} de {galleryTotalPages}
                                             </span>
                                             <button
                                                 type="button"
                                                 onClick={() => setGalleryPage((prev) => Math.min(galleryTotalPages, prev + 1))}
-                                                disabled={galleryPage === galleryTotalPages}
+                                                disabled={safeGalleryPage === galleryTotalPages}
                                                 className="rounded border border-slate-300 px-2 py-1 text-sm disabled:opacity-50"
                                             >
                                                 Próxima
