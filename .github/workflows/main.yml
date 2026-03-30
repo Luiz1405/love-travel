@@ -1,0 +1,55 @@
+name: Workflow Love Travel
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install dependencies (root workspaces)
+        run: npm ci
+      - name: Run Lint (frontend)
+        run: npm --workspace apps/love-travel-front run lint
+      - name: Build Project (frontend)
+        run: npm --workspace apps/love-travel-front run build
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres_db:
+        image: postgres:15
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_USER: user_test
+          POSTGRES_PASSWORD: password_test
+          POSTGRES_DB: database_test
+        options: >-
+          --health-cmd="pg_isready -U user_test -d database_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      - name: Install dependencies (root workspaces)
+        run: npm ci
+      - name: Run Lint (backend)
+        run: npm --workspace apps/love-travel-back run lint
+      - name: Build Project (backend)
+        run: npm --workspace apps/love-travel-back run build
+
