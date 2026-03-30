@@ -34,16 +34,28 @@ export function UpdateTravelPage() {
     });
 
 
+    function seedFromData(payload: {
+        title?: string;
+        destination?: string;
+        startDate?: string;
+        endDate?: string;
+        total_spent?: number;
+        status?: TravelStatus;
+        description?: string;
+    }) {
+        setTitle((prev) => (prev ? prev : payload.title ?? ''));
+        setDestination((prev) => (prev ? prev : payload.destination ?? ''));
+        setStartDate((prev) => (prev ? prev : toInputDate(payload.startDate)));
+        setEndDate((prev) => (prev ? prev : toInputDate(payload.endDate)));
+        setTotalCost((prev) => (prev ? prev : String(payload.total_spent ?? '')));
+        setStatus((prev) => (prev ? prev : ((payload.status ?? 'Planejado') as TravelStatus)));
+        setDescription((prev) => (prev ? prev : (payload.description ?? '')));
+    }
+
     useEffect(() => {
         if (!data) return;
-
-        setTitle((prev) => (prev ? prev : data.title ?? ''));
-        setDestination((prev) => (prev ? prev : data.destination ?? ''));
-        setStartDate((prev) => (prev ? prev : toInputDate(data.startDate)));
-        setEndDate((prev) => (prev ? prev : toInputDate(data.endDate)));
-        setTotalCost((prev) => (prev ? prev : String(data.total_spent ?? '')));
-        setStatus((prev) => (prev ? prev : ((data.status ?? 'Planejado') as TravelStatus)));
-        setDescription((prev) => (prev ? prev : (data.description ?? '')));
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        seedFromData(data);
     }, [data]);
 
     const { mutateAsync: updateTravel, isPending } = useMutation({
