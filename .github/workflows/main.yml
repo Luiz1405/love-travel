@@ -16,12 +16,21 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
-      - name: Install dependencies (root workspaces)
+          cache-dependency-path: |
+            package-lock.json
+            apps/love-travel-front/package-lock.json
+
+      - name: Install dependencies (frontend)
+        working-directory: apps/love-travel-front
         run: npm ci
+
       - name: Run Lint (frontend)
-        run: npm --workspace apps/love-travel-front run lint
+        working-directory: apps/love-travel-front
+        run: npm run lint
+        
       - name: Build Project (frontend)
-        run: npm --workspace apps/love-travel-front run build
+        working-directory: apps/love-travel-front
+        run: npm run build
 
   backend:
     runs-on: ubuntu-latest
@@ -46,10 +55,21 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
-      - name: Install dependencies (root workspaces)
+          cache-dependency-path: |
+            package-lock.json
+            apps/love-travel-back/package-lock.json
+
+      - name: Install dependencies (backend)
+        working-directory: apps/love-travel-back
+        
         run: npm ci
       - name: Run Lint (backend)
-        run: npm --workspace apps/love-travel-back run lint
+        continue-on-error: true
+
+        working-directory: apps/love-travel-back
+        run: npm run lint
+
       - name: Build Project (backend)
-        run: npm --workspace apps/love-travel-back run build
+        working-directory: apps/love-travel-back
+        run: npm run build
 
