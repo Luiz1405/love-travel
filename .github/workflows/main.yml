@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies (frontend)
         working-directory: apps/love-travel-front
-        run: npm ci
+        run: npm install
 
       - name: Run Lint (frontend)
         working-directory: apps/love-travel-front
