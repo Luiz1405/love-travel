@@ -59,15 +59,8 @@ export function UpdateTravelPage() {
     }, [data]);
 
     const { mutateAsync: updateTravel, isPending } = useMutation({
-        mutationFn: (payload: {
-            title: string;
-            destination: string;
-            startDate: string;
-            endDate: string;
-            total_spent: number;
-            status: TravelStatus;
-            description: string;
-        }) => TravelService.update(id, payload),
+        mutationFn: (payload: Parameters<typeof TravelService.update>[1]) =>
+            TravelService.update(id, payload),
     });
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
