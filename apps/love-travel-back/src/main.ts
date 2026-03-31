@@ -26,8 +26,17 @@ async function bootstrap() {
 
     app.useGlobalFilters(new AllExceptionsFilter());
 
+    const defaultOrigins = ['http://localhost:8080', 'http://localhost:5173'];
+    const extraOriginsRaw =
+      process.env.CORS_ORIGINS ?? process.env.FRONTEND_URL ?? '';
+    const extraOrigins = extraOriginsRaw
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const origins = Array.from(new Set([...defaultOrigins, ...extraOrigins]));
+
     app.enableCors({
-      origin: ['http://localhost:8080', 'http://localhost:5173'],
+      origin: origins,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
