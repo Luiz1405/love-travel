@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import 'reflect-metadata';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './shared/filters/http-exception.filter';
@@ -44,7 +45,7 @@ async function bootstrap() {
     });
 
     const port = process.env.PORT ?? 3000;
-    await app.listen(port);
+    await app.listen(port, '0.0.0.0');
     console.log(`Application is running on: http://localhost:${port}`);
     console.log(`API documentation with Swagger: http://localhost:${port}/api/docs`);
     console.log(`LOGS with Dozzle: http://localhost:8081`);
