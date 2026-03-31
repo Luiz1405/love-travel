@@ -10,6 +10,8 @@ import { FeatureFlagsService } from "src/utils/featureFlags/feature-flags.servic
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { FeatureFlagEntity } from "src/utils/featureFlags/feature-flag.entity";
 import { FeatureFlagGuard } from "src/utils/featureFlags/feature-flag-guard";
+import { MulterModule } from "@nestjs/platform-express";
+import { memoryStorage } from "multer";
 
 
 @Module({
@@ -17,6 +19,13 @@ import { FeatureFlagGuard } from "src/utils/featureFlags/feature-flag-guard";
         MongooseModule.forFeature([{ name: Travel.name, schema: TravelSchema }]),
         RedisModule,
         TypeOrmModule.forFeature([FeatureFlagEntity]),
+        MulterModule.register({
+            storage: memoryStorage(),
+            limits: {
+                fileSize: 10 * 1024 * 1024,
+                files: 10,
+            },
+        }),
     ],
     controllers: [TravelController],
     providers: [
