@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: love-travel-back
+    runtime: node
+    rootDir: apps/love-travel-back
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        fromService:
+          type: static
+          name: love-travel-front
+          property: url
+
+  - type: static
+    name: love-travel-front
+    rootDir: apps/love-travel-front
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: love-travel-back
+          property: url
+
