@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './shared/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppDataSource } from './database/data-source';
 
 async function bootstrap() {
   try {
@@ -43,6 +44,15 @@ async function bootstrap() {
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     });
+
+    if ((process.env.RUN_MIGRATIONS ?? 'false').toLowerCase() === 'true') {
+      await AppDataSource.initialize();
+      try {
+        await AppDataSource.runMigrations();
+      } finally {
+        await AppDataSource.destroy();
+      }
+    }
 
     const port = process.env.PORT ?? 3000;
     await app.listen(port, '0.0.0.0');
