@@ -8,8 +8,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     private client: RedisClientType;
 
     constructor(private readonly configService: ConfigService) {
+        const explicitUrl = this.configService.get<string>('REDIS_URL');
+        const host = this.configService.get<string>('REDIS_HOST');
+        const port = this.configService.get<number>('REDIS_PORT');
+
+        const url = explicitUrl && explicitUrl.trim().length > 0
+            ? explicitUrl
+            : `redis://${host}:${port}`;
+
+        const useTls = url.startsWith('rediss://');
+
         this.client = createClient({
-            url: `redis://${this.configService.get('REDIS_HOST')}:${this.configService.get('REDIS_PORT')}`,
+            url,
+            socket: useTls ? { tls: true } : undefined,
         });
     }
 

@@ -50,6 +50,11 @@ export const envValidationSchema = Joi.object({
     SUPABASE_SERVICE_ROLE_KEY: Joi.string().required(),
 
     //Validação de dados Redis
-    REDIS_HOST: Joi.string().required(),
+    REDIS_URL: Joi.string().uri().optional(),
+    REDIS_HOST: Joi.string().when('REDIS_URL', {
+        is: Joi.exist(),
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+    }),
     REDIS_PORT: Joi.number().default(6379),
 })
