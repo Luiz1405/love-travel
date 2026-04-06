@@ -15,7 +15,6 @@ import { MongooseModule } from "@nestjs/mongoose";
                 if (mongoUri && mongoUri.trim().length > 0) {
                     return {
                         uri: mongoUri,
-                        dbName: database,
                     };
                 }
                 const username = configService.get<string>('MONGO_USERNAME');
