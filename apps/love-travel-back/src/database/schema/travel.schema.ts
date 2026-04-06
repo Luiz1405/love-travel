@@ -36,9 +36,9 @@ export class Travel {
 
 export const TravelSchema = SchemaFactory.createForClass(Travel);
 
-TravelSchema.pre('save', function (next: (error?: Error) => void) {
-    if (this.endDate && this.endDate < this.startDate) {
-        return next(new Error('End date cannot be before start date'));
+TravelSchema.pre('save', function () {
+    const travel = this as TravelDocument;
+    if (travel.endDate && travel.endDate < travel.startDate) {
+        throw new Error('Data de término deve ser depois da Data de início');
     }
-    next();
 });

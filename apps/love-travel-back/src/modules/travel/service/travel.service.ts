@@ -2,7 +2,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Travel, TravelDocument } from "src/database/schema/travel.schema";
 import { CreateTravelDto } from "../dto/create-travel.dto";
-import { BadGatewayException, BadRequestException, ForbiddenException, HttpException, Inject, NotFoundException } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, ForbiddenException, Inject, NotFoundException } from "@nestjs/common";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
 import type { handleFileInterface } from "./../../../utils/contracts/handleFileInterface";
 import { RedisService } from "src/modules/redis/service/redis.service";
@@ -33,27 +33,17 @@ export class TravelService {
             await this.deleteOldCache(userId);
 
             return newTravel;
-        } catch (err: unknown) {
-            // Extra logging to help diagnose production issues (Supabase, DB, etc.)
-            const details: Record<string, unknown> = {};
-            if (err instanceof Error) {
-                details.message = err.message;
-                details.name = err.name;
-                details.stack = err.stack;
-                if (typeof err === 'object' && err !== null) {
-                    type WithCause = { cause?: unknown };
-                    details.cause = (err as WithCause).cause;
-                }
-            } else {
-                details.message = String(err);
+        } catch (erro: unknown) {
+            console.error('Erro detalhada ao criar viagem:', erro);
+
+            if (erro instanceof Error && erro.message.includes('Data')) {
+                throw new BadRequestException(erro.message);
             }
-            console.error('createTravel failed', details);
             if (createTravelDto?.photos?.length) {
                 await this.deletePhotos(createTravelDto.photos).catch(() => { });
             }
 
-            if (err instanceof HttpException) throw err;
-            throw new BadGatewayException('Falha ao processar upload das fotos.');
+            throw new BadGatewayException('Erro ao criar viagem');
         }
     }
 
