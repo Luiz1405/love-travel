@@ -34,6 +34,20 @@ export class TravelService {
 
             return newTravel;
         } catch (err: unknown) {
+            // Extra logging to help diagnose production issues (Supabase, DB, etc.)
+            const details: Record<string, unknown> = {};
+            if (err instanceof Error) {
+                details.message = err.message;
+                details.name = err.name;
+                details.stack = err.stack;
+                if (typeof err === 'object' && err !== null) {
+                    type WithCause = { cause?: unknown };
+                    details.cause = (err as WithCause).cause;
+                }
+            } else {
+                details.message = String(err);
+            }
+            console.error('createTravel failed', details);
             if (createTravelDto?.photos?.length) {
                 await this.deletePhotos(createTravelDto.photos).catch(() => { });
             }
