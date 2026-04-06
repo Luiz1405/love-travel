@@ -10,19 +10,21 @@ import { MongooseModule } from "@nestjs/mongoose";
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
                 const mongoUri = configService.get<string>('MONGO_URI');
+                const database = configService.get<string>('MONGO_DATABASE') || 'love-travel';
+
+                if (mongoUri && mongoUri.trim().length > 0) {
+                    return {
+                        uri: mongoUri,
+                        dbName: database,
+                    };
+                }
                 const username = configService.get<string>('MONGO_USERNAME');
                 const password = configService.get<string>('MONGO_PASSWORD');
-                const host = configService.get<string>('MONGO_HOST');
-                const port = configService.get<number>('MONGO_PORT');
-                const database = configService.get<string>('MONGO_DATABASE') || 'admin';
-
-                const uri =
-                    mongoUri && mongoUri.trim().length > 0
-                        ? mongoUri
-                        : `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`;
+                const host = configService.get<string>('MONGO_HOST') || 'localhost';
+                const port = configService.get<number>('MONGO_PORT') || 27017;
 
                 return {
-                    uri,
+                    uri: `mongodb://${username}:${password}@${host}:${port}`,
                     dbName: database,
                 };
             },
