@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import 'reflect-metadata';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './shared/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppDataSource } from './database/data-source';
@@ -25,6 +25,10 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        console.log('ERROS DE VALIDAÇÃO:', JSON.stringify(errors, null, 2));
+        return new BadRequestException(errors);
+      },
     }));
 
     app.useGlobalFilters(new AllExceptionsFilter());
