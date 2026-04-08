@@ -6,10 +6,7 @@ import { TravelService } from "./service/travel.service";
 import { HandleFileSupaBaseService } from "src/utils/handleFileSupaBaseService";
 import { SupabaseService } from "src/config/supabase.config";
 import { RedisModule } from "../redis/redis.module";
-import { FeatureFlagsService } from "src/utils/featureFlags/feature-flags.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { FeatureFlagEntity } from "src/utils/featureFlags/feature-flag.entity";
-import { FeatureFlagGuard } from "src/utils/featureFlags/feature-flag-guard";
+import { FeatureFlagsModule } from "src/utils/featureFlags/feature-flags.module";
 import { MulterModule } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
 
@@ -18,7 +15,7 @@ import { memoryStorage } from "multer";
     imports: [
         MongooseModule.forFeature([{ name: Travel.name, schema: TravelSchema }]),
         RedisModule,
-        TypeOrmModule.forFeature([FeatureFlagEntity]),
+        FeatureFlagsModule,
         MulterModule.register({
             storage: memoryStorage(),
             limits: {
@@ -32,8 +29,6 @@ import { memoryStorage } from "multer";
         SupabaseService,
         TravelService,
         Logger,
-        FeatureFlagsService,
-        FeatureFlagGuard,
         {
             provide: 'HandleFileInterface',
             useClass: HandleFileSupaBaseService,

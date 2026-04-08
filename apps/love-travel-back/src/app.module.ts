@@ -8,6 +8,7 @@ import { SecurityModule } from './shared/security/security.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TravelModule } from './modules/travel/travel.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { FeatureFlagsModule } from './utils/featureFlags/feature-flags.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RedisModule } from './modules/redis/redis.module';
     UsersModule,
     TravelModule,
     RedisModule,
+    FeatureFlagsModule,
   ],
 
 })

@@ -2,9 +2,9 @@ name: Workflow Love Travel
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: ["main", "dev"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   frontend:
@@ -14,8 +14,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: "20.x"
+          cache: "npm"
           cache-dependency-path: |
             package-lock.json
             apps/love-travel-front/package-lock.json
@@ -27,7 +27,7 @@ jobs:
       - name: Run Lint (frontend)
         working-directory: apps/love-travel-front
         run: npm run lint
-        
+
       - name: Build Project (frontend)
         working-directory: apps/love-travel-front
         run: npm run build
@@ -53,8 +53,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
+          node-version: "20.x"
+          cache: "npm"
           cache-dependency-path: |
             package-lock.json
             apps/love-travel-back/package-lock.json
@@ -73,3 +73,10 @@ jobs:
         working-directory: apps/love-travel-back
         run: npm run build
 
+  deploy-render:
+    needs: [frontend, backend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
