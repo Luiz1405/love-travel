@@ -23,11 +23,12 @@ export class FeatureFlagExplorer implements OnModuleInit {
             const instance = wrapper.instance as Record<string, unknown> | undefined;
             if (!instance) continue;
 
-            const prototype = Object.getPrototypeOf(instance);
+            const prototype = Object.getPrototypeOf(instance) as object;
             this.metadataScanner.scanFromPrototype(instance, prototype, (methodKey: string) => {
-                const handler = (instance as unknown as Record<string, unknown>)[methodKey];
-                const flagName = this.reflector.get<string>("featureFlag", handler);
-                if (flagName) {
+                const handler = instance[methodKey];
+                if (typeof handler !== "function") return;
+                const flagName = this.reflector.get<string | undefined>("featureFlag", handler);
+                if (typeof flagName === "string" && flagName.length > 0) {
                     discoveredFlagNames.add(flagName);
                 }
             });
