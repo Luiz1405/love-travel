@@ -1,0 +1,69 @@
+{
+  "description": "Documento de uma viagem (collection MongoDB / Mongoose). Fonte: src/database/schema/travel.schema.ts",
+  "collection": "travels",
+  "engine": "mongodb",
+  "fields": {
+    "_id": {
+      "type": "ObjectId",
+      "required": true,
+      "notes": "Gerado pelo MongoDB; não declarado explicitamente na classe Travel."
+    },
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "destination": {
+      "type": "string",
+      "required": true
+    },
+    "startDate": {
+      "type": "date",
+      "required": true
+    },
+    "endDate": {
+      "type": "date",
+      "required": false
+    },
+    "total_spent": {
+      "type": "number",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "enum": ["Planejado", "Em andamento", "Concluído"],
+      "default": "Planejado"
+    },
+    "photos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "required": false
+    },
+    "description": {
+      "type": "string",
+      "required": false
+    },
+    "createdAt": {
+      "type": "date",
+      "required": true,
+      "notes": "Adicionado por @Schema({ timestamps: true })."
+    },
+    "updatedAt": {
+      "type": "date",
+      "required": true,
+      "notes": "Adicionado por @Schema({ timestamps: true })."
+    },
+    "__v": {
+      "type": "number",
+      "required": false,
+      "notes": "Versão do documento (Mongoose); pode aparecer em documentos salvos."
+    }
+  },
+  "validation": {
+    "onSave": "Se endDate existir, deve ser >= startDate; caso contrário o save lança erro."
+  }
+}

@@ -2,7 +2,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Travel, TravelDocument } from "src/database/schema/travel.schema";
 import { CreateTravelDto } from "../dto/create-travel.dto";
-import { BadGatewayException, BadRequestException, ForbiddenException, Inject, NotFoundException } from "@nestjs/common";
+import { BadGatewayException, BadRequestException, ForbiddenException, HttpException, Inject, NotFoundException } from "@nestjs/common";
 import { UpdateTravelDto } from "../dto/update-travel.dto";
 import type { handleFileInterface } from "./../../../utils/contracts/handleFileInterface";
 import { RedisService } from "src/modules/redis/service/redis.service";
@@ -36,6 +36,9 @@ export class TravelService {
         } catch (erro: unknown) {
             console.error('Erro detalhada ao criar viagem:', erro);
 
+            if (erro instanceof HttpException) {
+                throw erro;
+            }
             if (erro instanceof Error && erro.message.includes('Data')) {
                 throw new BadRequestException(erro.message);
             }

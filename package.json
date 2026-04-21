@@ -7,7 +7,13 @@
   "scripts": {
     "start:backend": "npm --workspace apps/love-travel-back start",
     "start:frontend": "npm --workspace apps/love-travel-front run dev",
-    "dev": "npx concurrently \"npm run start:backend\" \"npm run start:frontend\""
+    "dev": "npx concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "test": "npm run test --workspace apps/love-travel-back && npm run test --workspace apps/love-travel-front",
+    "test:cov": "npm run test:cov --workspace apps/love-travel-back && npm run test:cov --workspace apps/love-travel-front",
+    "test:front": "npm run test --workspace apps/love-travel-front",
+    "test:front:cov": "npm run test:cov --workspace apps/love-travel-front",
+    "test:back": "npm run test --workspace apps/love-travel-back",
+    "test:back:cov": "npm run test:cov --workspace apps/love-travel-back"
   },
   "workspaces": [
     "apps/*"

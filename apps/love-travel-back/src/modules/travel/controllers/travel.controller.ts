@@ -29,7 +29,6 @@ export class TravelController {
     @AuthApiResponse(200, 'Viagens encontradas com sucesso.')
     async findAll(@GetUser('userId') userId: string, @Query() paginationDto: PaginationDto) {
         return this.travelService.findAll(userId, paginationDto);
-        console.log('teste');
     }
 
     @Get('search')
