@@ -1,21 +1,30 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../login/useAuth";
 
 export const GoogleCallbackPage = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
+        const tokenFromUrl = params.get("token");
 
-        if (!token) {
-            navigate("/login", { replace: true });
+        if (tokenFromUrl) {
+            login(tokenFromUrl);
+            navigate("/", { replace: true });
             return;
         }
 
-        localStorage.setItem("auth_token", token);
-        navigate("/", { replace: true });
-    }, [navigate]);
+        const existing = localStorage.getItem("auth_token");
+        if (existing) {
+            login(existing);
+            navigate("/", { replace: true });
+            return;
+        }
+
+        navigate("/login", { replace: true });
+    }, [navigate, login]);
 
     return (
         <div className="min-h-dvh flex items-center justify-center text-slate-600">

@@ -1,7 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ENDPOINTS } from "../../../../api/endpoint";
-import { api } from "../../../../api/client";
-
+import { AuthService } from "../../../../services/auth/auth-service";
 
 type ForgotPasswordRequest = {
     email: string;
@@ -11,8 +9,7 @@ type ForgotPasswordRequest = {
 export function useForgotPassword() {
     return useMutation({
         mutationFn: async (payload: ForgotPasswordRequest) => {
-            const { data } = await api.post(ENDPOINTS.auth.forgotPassword, payload);
-            return data;
+            return AuthService.forgotPassword(payload);
         },
     });
 }

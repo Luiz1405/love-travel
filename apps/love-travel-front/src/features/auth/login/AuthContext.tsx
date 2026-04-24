@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AuthContext } from "./context";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -10,19 +10,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     });
 
+    const login = useCallback((nextToken: string) => {
+        localStorage.setItem('auth_token', nextToken);
+        setToken(nextToken);
+    }, []);
+
+    const logout = useCallback(() => {
+        localStorage.removeItem('auth_token');
+        setToken(null);
+    }, []);
+
     const value = useMemo(
         () => ({
             isAuthenticated: !!token,
-            login: (token: string) => {
-                localStorage.setItem('auth_token', token);
-                setToken(token);
-            },
-            logout: () => {
-                localStorage.removeItem('auth_token')
-                setToken(null);
-            },
+            login,
+            logout,
         }),
-        [token]
+        [token, login, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

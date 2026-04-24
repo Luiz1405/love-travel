@@ -18,8 +18,7 @@ export function FeaturedCarousel() {
     const maxIndex = useMemo(() => {
         return Math.max(0, FEATURED.length - slidesPerView);
     }, [slidesPerView]);
-
-    // Atualiza índice quando usuário faz scroll manual (mouse/touch)
+    
     function onScroll(e: UIEvent<HTMLDivElement>) {
         const el = e.currentTarget;
         const slideWidth = el.clientWidth / slidesPerView;
@@ -41,8 +40,6 @@ export function FeaturedCarousel() {
     function next() {
         scrollToIndex(Math.min(index + 1, maxIndex));
     }
-
-    // Sincroniza snapping ao redimensionar
     useEffect(() => {
         scrollToIndex(index);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +56,6 @@ export function FeaturedCarousel() {
                 </p>
 
                 <div className="relative mt-8">
-                    {/* Botões navegação: absolutos para sobrepor ao carrossel */}
                     <button
                         type="button"
                         aria-label="Anterior"
@@ -76,8 +72,6 @@ export function FeaturedCarousel() {
                     >
                         ›
                     </button>
-
-                    {/* Trilho do carrossel (scroll horizontal + snap) */}
                     <div
                         ref={containerRef}
                         onScroll={onScroll}
@@ -116,7 +110,7 @@ export function FeaturedCarousel() {
                         ))}
                     </div>
 
-                    {/* Indicadores (opcional) */}
+                    {}
                     <div className="mt-4 flex justify-center gap-2">
                         {Array.from({ length: maxIndex + 1 }).map((_, i) => (
                             <button
@@ -133,17 +127,12 @@ export function FeaturedCarousel() {
     );
 }
 
-/**
- * Decide quantos slides por view conforme o breakpoint atual.
- * Mantemos em um hook para separar responsabilidade (legibilidade).
- */
 function useResponsiveSlidesPerView() {
-    // Simples: usar matchMedia; poderia ser um hook de breakpoint global.
     const [count, setCount] = useState(1);
 
     useEffect(() => {
-        const mSm = window.matchMedia('(min-width: 640px)');   // sm
-        const mMd = window.matchMedia('(min-width: 768px)');   // md
+        const mSm = window.matchMedia('(min-width: 640px)');   
+        const mMd = window.matchMedia('(min-width: 768px)');  
 
         function update() {
             if (mMd.matches) setCount(3);

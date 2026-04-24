@@ -1,14 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import type { FeaturedDestination } from '../../../api/types';
-import { api } from '../../../api/client';
-import { ENDPOINTS } from '../../../api/endpoint';
+import { DestinationsService } from '../../../services/destinations/destinations-service';
 
 export function useFeaturedDestinations() {
     return useQuery({
         queryKey: ['featured-destinations'],
-        queryFn: async () => {
-            const { data } = await api.get<FeaturedDestination[]>(ENDPOINTS.destinations.featured);
-            return data;
+        queryFn: async (): Promise<FeaturedDestination[]> => {
+            return DestinationsService.getFeatured();
         },
         staleTime: 1000 * 60 * 5,
     });

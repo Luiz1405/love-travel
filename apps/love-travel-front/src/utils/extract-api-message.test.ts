@@ -14,6 +14,15 @@ describe('extractApiMessage', () => {
         expect(extractApiMessage('erro direto')).toBe('erro direto');
     });
 
+    it('prioriza message quando error é Unauthorized (login inválido)', () => {
+        const data = {
+            statusCode: 401,
+            message: 'Invalid credentials',
+            error: 'Unauthorized',
+        };
+        expect(extractApiMessage(axiosLike(data))).toBe('Invalid credentials');
+    });
+
     it('lê string em error quando não é o rótulo genérico Bad Request', () => {
         const data = {
             statusCode: 400,
@@ -51,6 +60,41 @@ describe('extractApiMessage', () => {
             ],
         };
         expect(extractApiMessage(axiosLike(data))).toBe('Data de término deve ser depois da Data de início');
+    });
+
+    it('lê constraints no segundo item quando o primeiro não tem texto', () => {
+        const data = {
+            error: [{ property: 'x', constraints: {} }, { constraints: { isPositive: 'Total gasto deve ser positivo.' } }],
+        };
+        expect(extractApiMessage(axiosLike(data))).toBe('Total gasto deve ser positivo.');
+    });
+
+    it('lê validação quando error é objeto Nest (corpo sem message no topo)', () => {
+        const nestBody = {
+            message: [{ property: 'total_spent', constraints: { isPositive: 'Total gasto deve ser um número positivo ou maior que 0.' } }],
+            error: 'Bad Request',
+            statusCode: 400,
+        };
+        const data = { statusCode: 400, error: nestBody };
+        expect(extractApiMessage(axiosLike(data))).toBe('Total gasto deve ser um número positivo ou maior que 0.');
+    });
+
+    it('interpreta response.data como JSON em string', () => {
+        const inner = JSON.stringify({
+            statusCode: 400,
+            error: [{ constraints: { isAfter: 'Data de término deve ser depois da Data de início' } }],
+        });
+        const err = { message: 'Request failed with status code 400', response: { data: inner } };
+        expect(extractApiMessage(err)).toBe('Data de término deve ser depois da Data de início');
+    });
+
+    it('lê corpo em error.cause quando o erro foi encapsulado', () => {
+        const data = {
+            error: [{ constraints: { isPositive: 'Valor inválido.' } }],
+        };
+        const axiosErr = axiosLike(data);
+        const wrapped = { cause: axiosErr, message: 'wrapped' };
+        expect(extractApiMessage(wrapped)).toBe('Valor inválido.');
     });
 
     it('lê primeiro item string em error misto', () => {

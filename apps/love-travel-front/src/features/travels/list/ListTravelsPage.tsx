@@ -33,7 +33,6 @@ export function ListTravelsPage() {
         return () => window.clearTimeout(timeoutId);
     }, [search]);
 
-    // Reset page will be handled in the search input onChange to avoid setState in effects
 
     const { data: travels = [], isLoading, isError, error } = useTravels({
         page: travelPage,

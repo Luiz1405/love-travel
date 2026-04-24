@@ -3,8 +3,8 @@ import { ENDPOINTS } from "../../api/endpoint";
 
 
 export const TravelService = {
-    async create(data: unknown) {
-        const response = await api.post(ENDPOINTS.travels.create, data);
+    async create(data: FormData | unknown) {
+        const response = await api.post<{ id: string }>(ENDPOINTS.travels.create, data);
         return response.data;
     },
 

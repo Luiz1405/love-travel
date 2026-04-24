@@ -12,4 +12,9 @@ export const AuthService = {
         const response = await api.post(ENDPOINTS.auth.register, data);
         return response.data;
     },
+
+    async forgotPassword(data: unknown) {
+        const response = await api.post(ENDPOINTS.auth.forgotPassword, data);
+        return response.data;
+    },
 }

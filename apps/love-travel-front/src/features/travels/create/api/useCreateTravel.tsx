@@ -1,12 +1,8 @@
-// features/travels/create/api/useCreateTravel.ts
 import { useMutation } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 
 import type { CreateTravelPayload } from '../common/types';
-import { api } from '../../../../api/client';
-import { ENDPOINTS } from '../../../../api/endpoint';
-
-type CreateTravelResponse = { id: string };
+import { TravelService } from '../../../../services/travel/travel-service';
 
 export function useCreateTravel() {
     const queryClient = useQueryClient();
@@ -25,10 +21,7 @@ export function useCreateTravel() {
             if (payload.description) form.append('description', payload.description);
             photos.forEach((f) => form.append('photos', f));
 
-            const { data } = await api.post<CreateTravelResponse>(await ENDPOINTS.travels.create, form, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            return data;
+            return TravelService.create(form);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['travels'] });

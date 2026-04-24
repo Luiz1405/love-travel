@@ -32,7 +32,11 @@ export const LoginForm = ({ onSuccess, onSubmit, successMessage }: LoginFormProp
             await onSubmit({ email, password });
             onSuccess();
         } catch (error) {
-            const rawMessage = extractApiMessage(error);
+            let rawMessage = extractApiMessage(error);
+            const normalized = rawMessage.toLowerCase();
+            if (normalized.includes('invalid credentials') || normalized.includes('credenciais inválidas')) {
+                rawMessage = 'E-mail ou senha incorretos.';
+            }
             const mappedError = mapErrorToField(rawMessage);
 
             if (mappedError.field) {

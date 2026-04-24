@@ -17,7 +17,7 @@ export function TravelForm({
     isSubmitting: boolean;
     onSubmit: (payload: CreateTravelPayload, photos: File[]) => Promise<void>;
 }) {
-    const [fieldErrors, setFieldErrors] = useState<{ endDate?: string }>({});
+    const [fieldErrors, setFieldErrors] = useState<{ endDate?: string; totalSpent?: string }>({});
     const [title, setTitle] = useState('');
     const [destination, setDestination] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -78,8 +78,15 @@ export function TravelForm({
                 (msgLower.includes('data de término') && msgLower.includes('data de início')) ||
                 (msgLower.includes('término') && msgLower.includes('início') && (msgLower.includes('depois de') || msgLower.includes('maior que') || msgLower.includes('after')));
 
+            const isTotalSpentValidationError =
+                msgLower.includes('total_spent') ||
+                msgLower.includes('total gasto') ||
+                (msgLower.includes('gasto') && (msgLower.includes('positivo') || msgLower.includes('maior que 0')));
+
             if (isEndDateValidationError) {
                 setFieldErrors((prev) => ({ ...prev, endDate: rawMessage }));
+            } else if (isTotalSpentValidationError) {
+                setFieldErrors((prev) => ({ ...prev, totalSpent: rawMessage }));
             } else {
                 setError(rawMessage);
             }
@@ -143,16 +150,25 @@ export function TravelForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-semibold text-slate-700">Total gasto *</label>
-                    <div className="mt-1 flex items-center rounded-md border border-slate-200 px-3 py-2">
+                    <div
+                        className={`mt-1 flex items-center rounded-md border px-3 py-2 ${fieldErrors.totalSpent ? 'border-red-300' : 'border-slate-200'}`}
+                    >
                         <span className="mr-2 text-slate-500 text-sm">R$</span>
                         <input
                             value={totalCost}
                             onChange={(e) => setTotalCost(e.target.value)}
                             placeholder="0,00"
                             inputMode="decimal"
+                            aria-invalid={!!fieldErrors.totalSpent}
+                            aria-describedby={fieldErrors.totalSpent ? 'totalSpent-error' : undefined}
                             className="w-full outline-none"
                         />
                     </div>
+                    {fieldErrors.totalSpent && (
+                        <p id="totalSpent-error" className="mt-1 text-xs text-red-600">
+                            {fieldErrors.totalSpent}
+                        </p>
+                    )}
                 </div>
 
                 <div>
