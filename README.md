@@ -45,11 +45,9 @@ O front também define tipos e serviço para `/destinations/featured` e `/auth/m
 - Cliente **Supabase** no projeto (upload/utilitários)
 - Testes: **Vitest**
 
-### Infra e automação
+### Infra local
 
 - **Docker Compose**: API, front, PostgreSQL, MongoDB, Redis e **Dozzle** (visualização de logs dos containers; UI em `http://localhost:8081` quando compose sobe)
-- **Render** (`render.yaml`): deploy do back como **Web Service** e do front como **Static Site** (SPA com rewrite para `index.html`)
-- **GitHub Actions** (`.github/workflows/main.yml`): instala dependências, **lint** e **build** do front e do back em `push`/`PR`; em **push na `main`**, dispara deploy no Render via hook (`RENDER_DEPLOY_HOOK_URL`)
 
 ### Raiz do monorepo
 
@@ -117,6 +115,17 @@ docker compose up --build
 Serviços típicos: back **3000**, front **8080**, Postgres **5433**→5432 no host, Mongo **27018**→27017, Redis **6379**, Dozzle **8081**. Ajuste `.env` conforme `docker-compose.yml`.
 
 Migrações TypeORM no back: scripts `migration:*` em `apps/love-travel-back/package.json`. Em produção/hospedagem, pode-se usar `RUN_MIGRATIONS=true` para rodar migrações na subida (ver `main.ts`).
+
+---
+
+## CI/CD
+
+Fluxo completo: validação no GitHub e deploy na **Render**.
+
+| Etapa | Ferramenta | O que faz |
+| ----- | ----------- | ----------- |
+| **CI** (integração contínua) | **GitHub Actions** (`.github/workflows/main.yml`) | Em `push` nas branches `main` e `dev` e em `pull_request` para `main`: instala dependências, **lint** do front, **build** do front e **build** do back (job do back sobe **Postgres** como serviço para o pipeline). |
+| **CD** (entrega contínua) | **Render** | Em `push` na `main`, após os jobs de CI concluírem com sucesso, o workflow dispara o deploy via **hook** (`RENDER_DEPLOY_HOOK_URL` no repositório). O arquivo `render.yaml` declara a API (**Web Service** Node) e o front (**Static Site** com rewrite SPA para `index.html`); variáveis como `VITE_API_URL` e `FRONTEND_URL` são encadeadas entre os serviços no Render. |
 
 ---
 
